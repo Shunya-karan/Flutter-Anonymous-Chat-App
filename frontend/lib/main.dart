@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
 
       appBar: AppBar(
-        title: const Text("Anonymous Chat"),
+        title: const Text("TalkLoop"),
       ),
 
       body: Center(

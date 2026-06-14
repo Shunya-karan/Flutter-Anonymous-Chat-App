@@ -86,18 +86,22 @@ io.on("connection", (socket) => {
     socket.on("skip_stranger", () => {
 
       const partnerId = partners[socket.id];
-
       if (partnerId) {
-
         io.to(partnerId).emit("stranger_disconnected");
-
         // Notify the user who clicked skip
         socket.emit("skip_success");
-
         delete partners[socket.id];
         delete partners[partnerId];
       }
 
+    });
+
+    socket.on("typing",(roomId)=>{
+        socket.to(roomId).emit("user_typing");
+    });
+
+    socket.on("stop_typing",(roomId)=>{
+        socket.to(roomId).emit("user_stop_typing");
     });
  });
 

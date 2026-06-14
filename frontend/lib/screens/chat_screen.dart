@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/socket_service.dart';
+import 'dart:async';
 
 class ChatScreen extends StatefulWidget {
   final SocketService socketService;
@@ -21,6 +22,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   List<Map<String, dynamic>> messages = [];
   String myId = "";
+  bool strangerTyping = false;
+  Timer? typingTimer;
 
   @override
   @override
@@ -30,9 +33,7 @@ class _ChatScreenState extends State<ChatScreen> {
     myId = widget.socketService.socket.id!;
 
     // RECEIVE MESSAGE
-    widget.socketService.socket.on(
-      "receive_message",
-          (data) {
+    widget.socketService.socket.on("receive_message", (data) {
         setState(() {
           messages.add({
             "sender": data["sender"],
@@ -43,9 +44,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
 
     // STRANGER DISCONNECTED
-    widget.socketService.socket.on(
-      "stranger_disconnected",
-          (_) {
+    widget.socketService.socket.on("stranger_disconnected",(_) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Stranger disconnected"),
@@ -65,14 +64,24 @@ class _ChatScreenState extends State<ChatScreen> {
     );
 
     // SKIP SUCCESS
-    widget.socketService.socket.on(
-      "skip_success",
-          (_) {
+    widget.socketService.socket.on("skip_success", (_) {
         if (mounted) {
           Navigator.pop(context);
         }
       },
     );
+
+    widget.socketService.socket.on("user_typing",(_){
+      setState(() {
+        strangerTyping=true;
+      });
+    });
+
+    widget.socketService.socket.on("user_stop_typing",(_){
+      setState(() {
+        strangerTyping=false;
+      });
+    });
   }
 
   void sendMessage() {
@@ -87,6 +96,11 @@ class _ChatScreenState extends State<ChatScreen> {
         "roomId": widget.roomId,
         "message": messageController.text,
       },
+    );
+
+    widget.socketService.socket.emit(
+      "stop_typing",
+      widget.roomId,
     );
 
     messageController.clear();
@@ -175,16 +189,44 @@ class _ChatScreenState extends State<ChatScreen> {
                 },
               ),
             ),
-      
+            if (strangerTyping)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Stranger is typing...",
+                    style: TextStyle(
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
+
             Row(
               children: [
-      
                 Expanded(
                   child: TextField(
                     controller: messageController,
                     decoration: const InputDecoration(
                       hintText: "Type a message",
                     ),
+                    onChanged: (value) {
+                      widget.socketService.socket.emit(
+                        "typing",
+                        widget.roomId,
+                      );
+                      typingTimer?.cancel();
+                      typingTimer = Timer(
+                        const Duration(seconds: 1),
+                            () {
+                          widget.socketService.socket.emit(
+                            "stop_typing",
+                            widget.roomId,
+                          );
+                        },
+                      );
+                    },
                   ),
                 ),
       
