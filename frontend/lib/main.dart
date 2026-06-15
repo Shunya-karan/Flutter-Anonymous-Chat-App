@@ -38,13 +38,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   String status = "Not Connected";
-
+  int onlineUsers = 0;
   @override
   void initState() {
     super.initState();
 
     widget.socketService.socket.on("matched", (roomId) {
-
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -56,6 +55,13 @@ class _HomePageState extends State<HomePage> {
       );
 
     });
+    widget.socketService.socket.on("online_count", (count) {
+        setState(() {
+          onlineUsers = count;
+        });
+
+      },
+    );
   }
 
   @override
@@ -81,7 +87,14 @@ class _HomePageState extends State<HomePage> {
             ),
 
             const SizedBox(height: 20),
-
+            Text(
+              "🟢 Online Users: $onlineUsers",
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 10,),
             ElevatedButton(
 
               onPressed: () {

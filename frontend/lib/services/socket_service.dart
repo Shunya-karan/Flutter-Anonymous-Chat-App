@@ -5,7 +5,7 @@ class SocketService {
 
   void connect() {
     socket = IO.io(
-        "http://10.96.180.243:3000",
+        "http://10.137.58.243:3000",
         // "http://localhost:3000",
       IO.OptionBuilder()
           .setTransports(['websocket'])

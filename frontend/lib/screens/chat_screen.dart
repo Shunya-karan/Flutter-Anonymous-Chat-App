@@ -144,101 +144,118 @@ class _ChatScreenState extends State<ChatScreen> {
             ]
         ),
       
-        body: Column(
-          children: [
-      
-            Expanded(
-              child: ListView.builder(
-                itemCount: messages.length,
-                itemBuilder: (context, index) {
-      
-                  final msg = messages[index];
-      
-                  final isMe = msg["sender"] == myId;
-      
-                  return Align(
-                    alignment:
-                    isMe ? Alignment.centerRight : Alignment.centerLeft,
-      
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 4,
-                        horizontal: 8,
-                      ),
-                      padding: const EdgeInsets.all(12),
-      
-                      decoration: BoxDecoration(
-                        color: isMe
-                            ? Colors.blue
-                            : Colors.grey.shade300,
-      
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-      
-                      child: Text(
-                        msg["message"],
-                        style: TextStyle(
+        body: SafeArea(
+          child: Column(
+            children: [
+                
+              Expanded(
+                child: ListView.builder(
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                
+                    final msg = messages[index];
+                
+                    final isMe = msg["sender"] == myId;
+                
+                    return Align(
+                      alignment:
+                      isMe ? Alignment.centerRight : Alignment.centerLeft,
+                
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 4,
+                          horizontal: 8,
+                        ),
+                        padding: const EdgeInsets.all(12),
+                
+                        decoration: BoxDecoration(
                           color: isMe
-                              ? Colors.white
-                              : Colors.black,
+                              ? Colors.blue
+                              : Colors.grey.shade300,
+                
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                
+                        child: Text(
+                          msg["message"],
+                          style: TextStyle(
+                            color: isMe
+                                ? Colors.white
+                                : Colors.black,
+                          ),
                         ),
                       ),
-                    ),
-                  );
-      
-                },
+                    );
+                
+                  },
+                ),
               ),
-            ),
-            if (strangerTyping)
+              if (strangerTyping)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Stranger is typing...",
+                      style: TextStyle(
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
+          
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Stranger is typing...",
-                    style: TextStyle(
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ],
-              ),
-
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: messageController,
-                    decoration: const InputDecoration(
-                      hintText: "Type a message",
-                    ),
-                    onChanged: (value) {
-                      widget.socketService.socket.emit(
-                        "typing",
-                        widget.roomId,
-                      );
-                      typingTimer?.cancel();
-                      typingTimer = Timer(
-                        const Duration(seconds: 1),
-                            () {
-                          widget.socketService.socket.emit(
-                            "stop_typing",
-                            widget.roomId,
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+                      child: TextField(
+                        controller: messageController,
+                        decoration: InputDecoration(
+                          hintText: "Type a message...",
+                          filled: true,
+                          fillColor: Colors.grey.shade100,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: BorderSide(color: Colors.blue),
+                          ),
+                        ),
+                        onChanged: (value) {
+                          widget.socketService.socket.emit("typing", widget.roomId);
+                          typingTimer?.cancel();
+                          typingTimer = Timer(
+                            const Duration(seconds: 1),
+                                () {
+                              widget.socketService.socket.emit("stop_typing", widget.roomId);
+                            },
                           );
                         },
-                      );
-                    },
+                      ),
+                    ),
                   ),
-                ),
-      
-                IconButton(
-                  onPressed: sendMessage,
-                  icon: const Icon(Icons.send),
-                ),
-      
-              ],
-            ),
-      
-          ],
+
+                  IconButton(
+                    onPressed: sendMessage,
+                    icon: const Icon(Icons.send),
+                  ),
+
+                ],
+              ),
+                
+            ],
+          ),
         ),
       
       ),

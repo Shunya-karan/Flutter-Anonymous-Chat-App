@@ -18,6 +18,8 @@ const io = new Server(server, {
 
 const partners = {};
 let waitingUsers = [];
+let onlineUsers = 0;
+
 // ADD THIS ROUTE
 app.get("/", (req, res) => {
   res.send("Backend Server Running");
@@ -27,6 +29,10 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
 
    console.log("User connected:", socket.id);
+
+   onlineUsers++;
+   io.emit("online_count", onlineUsers);
+   console.log("Online Users:", onlineUsers);
 
    // FIND STRANGER
    socket.on("find_stranger", () => {
@@ -67,6 +73,8 @@ io.on("connection", (socket) => {
    socket.on("disconnect", () => {
 
      const partnerId = partners[socket.id];
+     onlineUsers--;
+     io.emit("online_count", onlineUsers);
 
      if (partnerId) {
        io.to(partnerId).emit(
@@ -80,7 +88,6 @@ io.on("connection", (socket) => {
      );
      console.log("User disconnected");
    });
-
 
     //Skip Stranger
     socket.on("skip_stranger", () => {
