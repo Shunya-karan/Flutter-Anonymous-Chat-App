@@ -24,64 +24,73 @@ class _ChatScreenState extends State<ChatScreen> {
   String myId = "";
   bool strangerTyping = false;
   Timer? typingTimer;
+  late Function(dynamic) receiveMessageListener;
+  late Function(dynamic) typingListener;
+  late Function(dynamic) stopTypingListener;
 
-  @override
   @override
   void initState() {
     super.initState();
 
     myId = widget.socketService.socket.id!;
 
-    // RECEIVE MESSAGE
-    widget.socketService.socket.on("receive_message", (data) {
-        setState(() {
-          messages.add({
-            "sender": data["sender"],
-            "message": data["message"],
-          });
+    receiveMessageListener = (data) {
+      if (!mounted) return;
+      setState(() {
+        messages.add({
+          "sender": data["sender"],
+          "message": data["message"],
         });
-      },
-    );
+      });
+
+    };
+    widget.socketService.socket.on("receive_message", receiveMessageListener,);
 
     // STRANGER DISCONNECTED
     widget.socketService.socket.on("stranger_disconnected",(_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Stranger disconnected"),
-            duration: Duration(seconds: 2),
-          ),
-        );
-
-        Future.delayed(
-          const Duration(seconds: 2),
-              () {
-            if (mounted) {
-              Navigator.pop(context);
-            }
-          },
-        );
+      searchAgain();
       },
     );
-
     // SKIP SUCCESS
     widget.socketService.socket.on("skip_success", (_) {
-        if (mounted) {
-          Navigator.pop(context);
-        }
+      searchAgain();
       },
     );
-
-    widget.socketService.socket.on("user_typing",(_){
+    //USER TYPING
+    typingListener = (_) {
+      if (!mounted) return;
       setState(() {
-        strangerTyping=true;
+        strangerTyping = true;
       });
-    });
 
-    widget.socketService.socket.on("user_stop_typing",(_){
+    };
+    widget.socketService.socket.on("user_typing", typingListener,);
+    //USER STOP TYPING
+    stopTypingListener = (_) {
+      if (!mounted) return;
       setState(() {
-        strangerTyping=false;
+        strangerTyping = false;
       });
-    });
+
+    };
+    widget.socketService.socket.on("user_stop_typing", stopTypingListener,);
+  }
+
+  void searchAgain() {
+    if(!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Finding a new stranger..."),
+        duration: Duration(seconds: 1),
+      ),
+    );
+    Future.delayed(
+      const Duration(seconds: 1),
+          () {
+        if (!mounted) return ;
+          Navigator.pop(context, true);
+      },
+    );
   }
 
   void sendMessage() {
@@ -89,7 +98,6 @@ class _ChatScreenState extends State<ChatScreen> {
     if (messageController.text.trim().isEmpty) {
       return;
     }
-
     widget.socketService.socket.emit(
       "send_message",
       {
@@ -108,11 +116,22 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
+    typingTimer?.cancel();
+    widget.socketService.socket.off(
+      "receive_message",
+      receiveMessageListener,
+    );
 
-    widget.socketService.socket.off("receive_message");
-    widget.socketService.socket.off("stranger_disconnected");
-    widget.socketService.socket.off("skip_success");
+    widget.socketService.socket.off(
+      "user_typing",
+      typingListener,
+    );
 
+    widget.socketService.socket.off(
+      "user_stop_typing",
+      stopTypingListener,
+    );
+    messageController.dispose();
     super.dispose();
   }
 
@@ -122,7 +141,6 @@ class _ChatScreenState extends State<ChatScreen> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-      
         appBar: AppBar(
           title: const Text("Anonymous Chat"),
             automaticallyImplyLeading: false,

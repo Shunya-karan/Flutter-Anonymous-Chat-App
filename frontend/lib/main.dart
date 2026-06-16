@@ -43,6 +43,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
+    // widget.socketService.socket.off("matched");
     widget.socketService.socket.on("matched", (roomId) {
       Navigator.push(
         context,
@@ -52,9 +53,17 @@ class _HomePageState extends State<HomePage> {
             roomId: roomId,
           ),
         ),
-      );
+      ).then((result){
+        if(result==true){
+          setState(() {
+            status="searching...";
+          });
+          widget.socketService.socket.emit("find_stranger",);
+        }
+      });
 
     });
+
     widget.socketService.socket.on("online_count", (count) {
         setState(() {
           onlineUsers = count;
@@ -96,9 +105,7 @@ class _HomePageState extends State<HomePage> {
             ),
             SizedBox(height: 10,),
             ElevatedButton(
-
               onPressed: () {
-
                 widget.socketService.socket.emit(
                     "find_stranger"
                 );
