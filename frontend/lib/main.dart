@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'services/socket_service.dart';
 import 'screens/chat_screen.dart';
-
+import "screens/interest_screen.dart";
 void main() {
   runApp(MyApp());
 }
@@ -39,6 +39,7 @@ class _HomePageState extends State<HomePage> {
 
   String status = "Not Connected";
   int onlineUsers = 0;
+  List<String> selectedInterests = [];
   @override
   void initState() {
     super.initState();
@@ -58,7 +59,11 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             status="searching...";
           });
-          widget.socketService.socket.emit("find_stranger",);
+          widget.socketService.socket.emit("find_stranger",
+            {
+              "interests": selectedInterests,
+            },
+          );
         }
       });
 
@@ -105,13 +110,24 @@ class _HomePageState extends State<HomePage> {
             ),
             SizedBox(height: 10,),
             ElevatedButton(
-              onPressed: () {
-                widget.socketService.socket.emit(
-                    "find_stranger"
+              onPressed: ()async {
+                final result =await Navigator.push(context, MaterialPageRoute(builder: (_)=>
+                  InterestScreen()
+                )
                 );
-
+                print("RESULT => $result");
+                if(result !=null){
+                  selectedInterests=List<String>.from(result);
+                  print("Selected Interests: $selectedInterests");
+                  widget.socketService.socket.emit(
+                    "find_stranger",
+                    {
+                      "interests":selectedInterests,
+                    }
+                  );
+                }
                 setState(() {
-                  status = "Searching...";
+                  status = "🔍 Looking for a stranger...";
                 });
 
               },

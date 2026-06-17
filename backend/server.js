@@ -26,6 +26,19 @@ app.get("/", (req, res) => {
   res.send("Backend Server Running");
 });
 
+function addToQueue(socket, interests) {
+
+  waitingUsers = waitingUsers.filter(
+    user => user.socket.id !== socket.id
+  );
+
+  waitingUsers.push({
+    socket,
+    interests,
+  });
+
+}
+
 
 io.on("connection", (socket) => {
 
@@ -35,12 +48,43 @@ io.on("connection", (socket) => {
    io.emit("online_count", onlineUsers);
 
    // FIND STRANGER
-   socket.on("find_stranger", () => {
+   socket.on("find_stranger", (data) => {
+     console.log("RAW DATA:", data);
+      const interests = data?.interests || [];
+      console.log("Current User:", socket.id);
+      console.log("Current Interests:", interests);
 
+      console.log(
+        "Waiting Queue:",
+        waitingUsers.map(user => ({
+          id: user.socket.id,
+          interests: user.interests,
+        }))
+      );
      // If someone waiting
      if (waitingUsers.length > 0) {
-
-       const partner = waitingUsers.shift();
+       const partnerIndex = waitingUsers.findIndex(
+       (user)=>
+       user.socket.id!==socket.id &&
+       user.interests.some(
+            (interest)=>interests.includes(interest)
+        )
+       );
+       let partnerData;
+       if (partnerIndex !== -1) {
+         partnerData =
+           waitingUsers.splice(partnerIndex, 1)[0];
+       } else{
+        addToQueue(socket, interests);
+        console.log("No matching Found");
+        return;
+       }
+       if (!partnerData) {
+         addToQueue(socket, interests);
+         console.log("Added to waiting queue");
+         return;
+       }
+       const partner=partnerData.socket;
        const roomId = `${socket.id}-${partner.id}-${Date.now()}`;
        partners[socket.id] = partner.id;
        partners[partner.id] = socket.id;
@@ -53,8 +97,7 @@ io.on("connection", (socket) => {
        console.log("Matched:", socket.id, partner.id);
      } else {
        // Add current user to waiting list
-       waitingUsers.push(socket);
-       console.log("Added to waiting queue");
+        addToQueue(socket, interests);
      }
    });
 
