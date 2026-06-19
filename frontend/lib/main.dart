@@ -44,7 +44,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    // widget.socketService.socket.off("matched");
+    widget.socketService.socket.off("matched");
+
     widget.socketService.socket.on("matched", (roomId) {
       Navigator.push(
         context,
@@ -77,7 +78,12 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
-
+  @override
+  void dispose() {
+    widget.socketService.socket.off("matched");
+    widget.socketService.socket.off("online_count");
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
 

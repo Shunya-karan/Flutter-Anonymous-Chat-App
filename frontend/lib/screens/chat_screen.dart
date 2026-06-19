@@ -24,13 +24,18 @@ class _ChatScreenState extends State<ChatScreen> {
   String myId = "";
   bool strangerTyping = false;
   Timer? typingTimer;
+  bool isSearchingAgain = false;
   late Function(dynamic) receiveMessageListener;
   late Function(dynamic) typingListener;
   late Function(dynamic) stopTypingListener;
+  late Function(dynamic) skipListener;
+  late Function(dynamic) disconnectListener;
 
   @override
   void initState() {
     super.initState();
+    widget.socketService.socket.off("skip_success");
+    widget.socketService.socket.off("stranger_disconnected");
 
     myId = widget.socketService.socket.id!;
 
@@ -47,15 +52,17 @@ class _ChatScreenState extends State<ChatScreen> {
     widget.socketService.socket.on("receive_message", receiveMessageListener,);
 
     // STRANGER DISCONNECTED
-    widget.socketService.socket.on("stranger_disconnected",(_) {
+    disconnectListener=(_){
       searchAgain();
-      },
-    );
+    };
+    widget.socketService.socket.on("stranger_disconnected",disconnectListener);
+
     // SKIP SUCCESS
-    widget.socketService.socket.on("skip_success", (_) {
+    skipListener=(_){
       searchAgain();
-      },
-    );
+    };
+    widget.socketService.socket.on("skip_success", skipListener);
+
     //USER TYPING
     typingListener = (_) {
       if (!mounted) return;
@@ -65,6 +72,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     };
     widget.socketService.socket.on("user_typing", typingListener,);
+
     //USER STOP TYPING
     stopTypingListener = (_) {
       if (!mounted) return;
@@ -84,6 +92,8 @@ class _ChatScreenState extends State<ChatScreen> {
         duration: Duration(seconds: 1),
       ),
     );
+    if(isSearchingAgain) return;
+    isSearchingAgain=true;
     Future.delayed(
       const Duration(seconds: 1),
           () {
@@ -130,6 +140,15 @@ class _ChatScreenState extends State<ChatScreen> {
     widget.socketService.socket.off(
       "user_stop_typing",
       stopTypingListener,
+    );
+    widget.socketService.socket.off(
+      "skip_success",
+      skipListener,
+    );
+
+    widget.socketService.socket.off(
+      "stranger_disconnected",
+      disconnectListener,
     );
     messageController.dispose();
     super.dispose();

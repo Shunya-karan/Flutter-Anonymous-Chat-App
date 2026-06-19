@@ -15,7 +15,6 @@ class SocketService {
     socket.connect();
 
     socket.onConnect((_) {
-      print("Connected");
     });
   }
 }

@@ -31,7 +31,6 @@ function addToQueue(socket, interests) {
   waitingUsers = waitingUsers.filter(
     user => user.socket.id !== socket.id
   );
-
   waitingUsers.push({
     socket,
     interests,
@@ -42,6 +41,14 @@ function addToQueue(socket, interests) {
 
 io.on("connection", (socket) => {
 
+    socket.onAny((event, data) => {
+    console.log(
+      "EVENT:",
+      event,
+      "DATA:",
+      data
+    );
+  });
    console.log("User connected:", socket.id);
 
    onlineUsers++;
@@ -49,14 +56,18 @@ io.on("connection", (socket) => {
 
    // FIND STRANGER
    socket.on("find_stranger", (data) => {
-     console.log("RAW DATA:", data);
+        console.log("==============");
+          console.log("SOCKET:", socket.id);
+          console.log("RAW DATA:", data);
+          console.log("==============");
+
       const interests = data?.interests || [];
       console.log("Current User:", socket.id);
       console.log("Current Interests:", interests);
 
       console.log(
-        "Waiting Queue:",
-        waitingUsers.map(user => ({
+         "Waiting Queue:",
+          waitingUsers.map(user => ({
           id: user.socket.id,
           interests: user.interests,
         }))
@@ -103,13 +114,6 @@ io.on("connection", (socket) => {
 
    // SEND MESSAGE
    socket.on("send_message", (data) => {
-   console.log(
-       "MESSAGE",
-       socket.id,
-       data.roomId,
-       data.message
-     );
-
      io.to(data.roomId).emit("receive_message", {
        sender: socket.id,
        message: data.message,
@@ -119,7 +123,6 @@ io.on("connection", (socket) => {
 
    // DISCONNECT
    socket.on("disconnect", () => {
-
      const roomId = userRooms[socket.id];
      if (roomId) {
        socket.leave(roomId);
@@ -138,14 +141,13 @@ io.on("connection", (socket) => {
        delete userRooms[partnerId];
      }
      waitingUsers = waitingUsers.filter(
-       user => user.id !== socket.id
+       user => user.socket.id !== socket.id
      );
      console.log("User disconnected");
    });
 
     //Skip Stranger
     socket.on("skip_stranger", () => {
-
       const partnerId = partners[socket.id];
       if (partnerId) {
         const roomId = userRooms[socket.id];
@@ -160,6 +162,12 @@ io.on("connection", (socket) => {
         io.to(partnerId).emit("stranger_disconnected");
         // Notify the user who clicked skip
         socket.emit("skip_success");
+        waitingUsers = waitingUsers.filter(
+          user => user.socket.id !== socket.id
+        );
+        waitingUsers = waitingUsers.filter(
+          user => user.socket.id !== partnerId
+        );
         delete partners[socket.id];
         delete partners[partnerId];
         delete userRooms[socket.id];
