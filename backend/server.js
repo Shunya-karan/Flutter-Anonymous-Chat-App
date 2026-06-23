@@ -3,9 +3,9 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 require("dotenv").config();
-const connectDB = require("./config/db");
-const socketHandler = require("./sockets/socketHandler");
-const authRoutes = require("./routes/authRoutes");
+const connectDB = require("./src/config/db")
+const socketHandler = require("./src/sockets/socketHandler");
+const authRoutes = require("./src/routes/authRoutes");
 const app = express();
 
 app.use(cors());
