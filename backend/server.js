@@ -1,22 +1,11 @@
-const express = require("express");
+require("dotenv").config();
+
 const http = require("http");
 const { Server } = require("socket.io");
-const cors = require("cors");
-require("dotenv").config();
-const connectDB = require("./src/config/db")
+
+const connectDB = require("./src/config/db");
 const socketHandler = require("./src/sockets/socketHandler");
-const authRoutes = require("./src/routes/authRoutes");
-const app = express();
-
-app.use(cors());
-app.use(express.json());
-
-app.use("/api/auth",authRoutes);
-
-app.get("/", (req, res) => {
-  res.send("Backend Server Running");
-});
-
+const app = require("./src/app");
 
 const server = http.createServer(app);
 
@@ -29,6 +18,9 @@ const io = new Server(server, {
 socketHandler(io);
 
 connectDB();
-server.listen(3000, "0.0.0.0", () => {
-  console.log("Server running on port 3000");
+
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
 });

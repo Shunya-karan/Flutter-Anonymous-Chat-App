@@ -1,6 +1,8 @@
 const User = require("../models/User");
-
+const AppError = require("../errors/AppError")
 const hashPassword = require("../utils/hashPassword");
+const comparePassword = require("../utils/comparePassword");
+const generateToken = require("../utils/genrateToken");
 
 const registerUser = async (userData) => {
   const {username,email,password,interests,} = userData;
@@ -8,8 +10,9 @@ const registerUser = async (userData) => {
   const existingUser =await User.findOne({ email });
 
   if (existingUser) {
-    throw new Error(
-      "Email already exists"
+    throw new AppError(
+      "Email already exists",
+      409
     );
   }
 
@@ -19,6 +22,40 @@ const registerUser = async (userData) => {
   return user;
 };
 
+
+const login = async ({ email, password }) => {
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new AppError("Invalid email or password", 401);
+  }
+
+  // Compare password
+  const isMatch = await comparePassword(
+    password,
+    user.password
+  );
+
+  if (!isMatch) {
+    throw new AppError("Invalid email or password", 401);
+  }
+
+  // Generate JWT
+  const token = generateToken(user._id);
+
+  return {
+    token,
+    user: {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      interests: user.interests,
+    },
+  };
+};
+
 module.exports = {
   registerUser,
+  login,
 };
