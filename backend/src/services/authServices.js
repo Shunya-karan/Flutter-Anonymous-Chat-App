@@ -25,8 +25,7 @@ const registerUser = async (userData) => {
 
 const login = async ({ email, password }) => {
 
-  const user = await User.findOne({ email });
-
+  const user = await User.findOne({ email }).select("+password");
   if (!user) {
     throw new AppError("Invalid email or password", 401);
   }
@@ -55,7 +54,20 @@ const login = async ({ email, password }) => {
   };
 };
 
+const getCurrentUser = async (userId) => {
+    const user = await User.findById(userId);
+
+    if (!user) {
+        throw new AppError("User not found",404);
+    }
+
+    return user;
+};
+
+
+
 module.exports = {
   registerUser,
   login,
+  getCurrentUser
 };
