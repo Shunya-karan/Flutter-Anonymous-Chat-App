@@ -21,12 +21,29 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      select:false
+      select: false,
     },
 
     interests: {
       type: [String],
       default: [],
+    },
+
+    profileImage: {
+      type: String,
+      default: "",
+    },
+
+    bio: {
+      type: String,
+      default: "",
+      maxlength: 150,
+    },
+
+    gender: {
+      type: String,
+      enum: ["Male", "Female", "Other", "Prefer not to say"],
+      default: "Prefer not to say",
     },
   },
   {

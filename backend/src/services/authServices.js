@@ -5,7 +5,8 @@ const comparePassword = require("../utils/comparePassword");
 const generateToken = require("../utils/genrateToken");
 
 const registerUser = async (userData) => {
-  const {username,email,password,interests,} = userData;
+  const {username,email,password,interests,bio,gender,profileImage,
+} = userData;
 
   const existingUser =await User.findOne({ email });
 
@@ -18,7 +19,7 @@ const registerUser = async (userData) => {
 
   const hashedPassword =await hashPassword(password);
 
-  const user =await User.create({username,email,password: hashedPassword,interests,});
+  const user =await User.create({username,email,password: hashedPassword,interests,bio,gender,profileImage});
   return user;
 };
 
