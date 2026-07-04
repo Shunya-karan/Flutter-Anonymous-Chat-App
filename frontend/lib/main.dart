@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'services/socket_service.dart';
-import 'screens/homeScreen.dart';
+import 'screens/home/homeScreen.dart';
 
 
 void main() {

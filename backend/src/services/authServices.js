@@ -4,7 +4,10 @@ const hashPassword = require("../utils/hashPassword");
 const comparePassword = require("../utils/comparePassword");
 const generateToken = require("../utils/genrateToken");
 
-const registerUser = async (userData) => {
+
+const authService={
+
+   async registerUser(userData)  {
   const {username,email,password,interests,bio,gender,profileImage,
 } = userData;
 
@@ -21,10 +24,9 @@ const registerUser = async (userData) => {
 
   const user =await User.create({username,email,password: hashedPassword,interests,bio,gender,profileImage});
   return user;
-};
+},
 
-
-const login = async ({ email, password }) => {
+    async loginUser({ email, password })  {
 
   const user = await User.findOne({ email }).select("+password");
   if (!user) {
@@ -53,9 +55,9 @@ const login = async ({ email, password }) => {
       interests: user.interests,
     },
   };
-};
+},
 
-const getCurrentUser = async (userId) => {
+  async getCurrentUser(userId)  {
     const user = await User.findById(userId);
 
     if (!user) {
@@ -63,12 +65,10 @@ const getCurrentUser = async (userId) => {
     }
 
     return user;
-};
+}
+
+}
 
 
 
-module.exports = {
-  registerUser,
-  login,
-  getCurrentUser
-};
+module.exports = authService

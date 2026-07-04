@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/services/socket_service.dart';
-import 'chat_screen.dart';
-import 'interest_screen.dart';
+import '../chat/chat_screen.dart';
+import '../auth/interest_screen.dart';
 
 class HomePage extends StatefulWidget {
   final SocketService socketService;

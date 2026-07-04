@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/socket_service.dart';
+import '../../services/socket_service.dart';
 import 'dart:async';
 
 class ChatScreen extends StatefulWidget {
