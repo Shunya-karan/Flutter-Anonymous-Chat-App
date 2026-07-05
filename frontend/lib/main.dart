@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/theme/darkTheme.dart';
 import 'package:frontend/core/theme/lightTheme.dart';
+import 'package:frontend/screens/splash/splash_screen.dart';
 import 'core/network/socket_service.dart';
 import 'screens/home/homeScreen.dart';
 
@@ -22,10 +23,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
 
       theme: LightTheme.theme,
-      darkTheme: DarkTheme.theme,
-      themeMode: ThemeMode.system,
+      // darkTheme: DarkTheme.theme,
+      // themeMode: ThemeMode.system,
 
-      home: HomePage(socketService),
+      home: SplashScreen(),
     );
   }
 }
