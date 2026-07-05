@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../services/socket_service.dart';
+import '../../core/network/socket_service.dart';
 import 'dart:async';
 
 class ChatScreen extends StatefulWidget {
@@ -103,7 +103,7 @@ class _ChatScreenState extends State<ChatScreen> {
         content: const Text("Finding a new stranger..."),
         duration: const Duration(seconds: 1),
         behavior: SnackBarBehavior.floating,
-        backgroundColor: const Color(0xFF2B1B4A),
+        backgroundColor: const Color(0xFFAEA3C6),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
@@ -205,7 +205,7 @@ class _ChatScreenState extends State<ChatScreen> {
               child: messages.isEmpty
                   ? const Center(
                 child: Text(
-                  "You are connected.\nSay hello 👋",
+                  "You are connected.\nSay hello ",
                   textAlign: TextAlign.center,
                 ),
               )

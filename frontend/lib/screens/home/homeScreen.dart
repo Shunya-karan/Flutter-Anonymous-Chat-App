@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/services/socket_service.dart';
+import 'package:frontend/core/network/socket_service.dart';
 import '../chat/chat_screen.dart';
 import '../auth/interest_screen.dart';
 
@@ -27,8 +27,6 @@ class _HomePageState extends State<HomePage>
   void initState() {
     super.initState();
 
-
-
     widget.socketService.socket.off("matched");
 
     widget.socketService.socket.on("matched", (roomId) {
@@ -44,7 +42,7 @@ class _HomePageState extends State<HomePage>
       ).then((result) {
         if (result == true) {
           setState(() {
-            status = "🔍 Looking for a stranger...";
+            status = " Looking for a stranger...";
           });
           widget.socketService.socket.emit("find_stranger", {
             "interests": selectedInterests,
@@ -85,7 +83,7 @@ class _HomePageState extends State<HomePage>
     }
 
     setState(() {
-      status = "🔍 Looking for a stranger...";
+      status = "Looking for a stranger...";
     });
   }
 

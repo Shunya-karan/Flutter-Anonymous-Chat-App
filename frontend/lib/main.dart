@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'services/socket_service.dart';
+import 'package:frontend/core/theme/darkTheme.dart';
+import 'package:frontend/core/theme/lightTheme.dart';
+import 'core/network/socket_service.dart';
 import 'screens/home/homeScreen.dart';
 
 
@@ -18,6 +20,11 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+
+      theme: LightTheme.theme,
+      darkTheme: DarkTheme.theme,
+      themeMode: ThemeMode.system,
+
       home: HomePage(socketService),
     );
   }
