@@ -22,7 +22,7 @@ async register(req,res,next) {
 
 async login(req, res, next) {
   try {
-    const data = await authService.login(req.body);
+    const data = await authService.loginUser(req.body);
 
     res.status(200).json({
       success: true,

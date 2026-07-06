@@ -44,7 +44,20 @@ class CustomTextField extends StatelessWidget {
         prefixIcon:
         prefixIcon != null ? Icon(prefixIcon) : null,
         suffixIcon: suffixIcon,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: Colors.grey.shade300,
+            width: 1.0,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.primary, // Your theme color
+            width: 1.5, // Thin border
+          ),
       ),
-    );
+    ));
   }
 }

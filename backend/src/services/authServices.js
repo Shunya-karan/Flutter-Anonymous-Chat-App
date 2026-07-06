@@ -26,11 +26,17 @@ const authService={
   return user;
 },
 
-    async loginUser({ email, password })  {
+   async loginUser({ identifier, password })  {
 
-  const user = await User.findOne({ email }).select("+password");
+  const user = await User.findOne({
+  $or:[
+  {email:identifier},
+  {username:identifier}
+  ]
+  }).select("+password");
+
   if (!user) {
-    throw new AppError("Invalid email or password", 401);
+    throw new AppError("Invalid credential", 401);
   }
 
   // Compare password
@@ -40,7 +46,7 @@ const authService={
   );
 
   if (!isMatch) {
-    throw new AppError("Invalid email or password", 401);
+    throw new AppError("Invalid credentials", 401);
   }
 
   // Generate JWT
@@ -66,9 +72,6 @@ const authService={
 
     return user;
 }
-
 }
-
-
 
 module.exports = authService

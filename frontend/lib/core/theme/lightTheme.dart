@@ -46,13 +46,20 @@ class LightTheme {
         ),
       ),
 
-      focusedBorder: OutlineInputBorder(
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(
+          color: AppColors.lightBorder,
+        ),
+      ),
+
+      focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(
           color: AppColors.primary,
           width: 2,
         ),
-      ),
+      )
     ),
 
     elevatedButtonTheme: ElevatedButtonThemeData(
