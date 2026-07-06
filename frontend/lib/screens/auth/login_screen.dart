@@ -3,6 +3,7 @@ import "package:frontend/core/network/socket_service.dart";
 import "package:frontend/core/storage/shared_pref_service.dart";
 import "package:frontend/core/theme/appColor.dart";
 import "package:frontend/core/utils/validator.dart";
+import "package:frontend/screens/auth/register_screen.dart";
 import "package:frontend/screens/home/homeScreen.dart";
 import "package:frontend/services/authServices.dart";
 import "package:frontend/widgets/customButton.dart";
@@ -139,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 22),
                   Text(
-                    "Continue your anonymous conversations.",
+                    "Continue your anonymous conversations",
                     textAlign: TextAlign.center,
                     style:TextStyle(color: AppColors.lightSubtitle),
                   ),
@@ -203,9 +204,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       TextButton(
                         style: TextButton.styleFrom(textStyle:TextStyle(fontWeight: FontWeight.w500)),
-                        onPressed: () {},
-                        child: const Text("Register",
-                        ),
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder:
+                                  (context)=>RegisterScreen())
+                          );
+                        },
+                        child: const Text("Register",),
                       ),
                     ],
                   )
