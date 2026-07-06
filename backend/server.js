@@ -5,6 +5,7 @@ const { Server } = require("socket.io");
 
 const connectDB = require("./src/config/db");
 const socketHandler = require("./src/sockets/socketHandler");
+const socketAuth = require("./src/middleware/socketAuth");
 const app = require("./src/app");
 
 const server = http.createServer(app);
@@ -15,6 +16,7 @@ const io = new Server(server, {
   },
 });
 
+io.use(socketAuth);
 socketHandler(io);
 
 connectDB();

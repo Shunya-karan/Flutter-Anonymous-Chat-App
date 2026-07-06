@@ -17,11 +17,15 @@ module.exports = (io) => {
   }
 
   io.on("connection", (socket) => {
+     console.log(socket.id);
+
+     console.log(socket.user);
     onlineUsers++;
     io.emit("online_count", onlineUsers);
 
     // FIND STRANGER
     socket.on("find_stranger", (data) => {
+        console.log(socket.user.id);
       const interests = data?.interests || [];
       // If someone waiting
       if (waitingUsers.length > 0) {

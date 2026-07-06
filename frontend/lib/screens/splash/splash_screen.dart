@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:frontend/core/network/socket_service.dart';
+import 'package:frontend/core/storage/shared_pref_service.dart';
+import 'package:frontend/screens/auth/login_screen.dart';
 import 'package:frontend/screens/home/homeScreen.dart';
 
 // import '../auth/login_screen.dart';
@@ -25,18 +28,28 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _navigate() async {
 
-    await Future.delayed(
-      const Duration(seconds: 2),
-    );
+    await Future.delayed(const Duration(seconds: 2));
 
+    final token=await SharedPrefService.getToken();
     if (!mounted) return;
-    //
-    // Navigator.pushReplacement(
-    //   context,
-    //   // MaterialPageRoute(
-    //     // builder: (_) => const HomePage(),
-    //   ),
-    // );
+
+    if(token == null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const LoginScreen(),
+        ),
+      );
+      return;
+    }
+
+      SocketService.instance.connect(token);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const HomePage(),
+        ),
+      );
   }
 
   @override

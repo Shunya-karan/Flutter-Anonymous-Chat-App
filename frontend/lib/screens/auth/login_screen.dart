@@ -1,6 +1,9 @@
 import "package:flutter/material.dart";
+import "package:frontend/core/network/socket_service.dart";
+import "package:frontend/core/storage/shared_pref_service.dart";
 import "package:frontend/core/theme/appColor.dart";
 import "package:frontend/core/utils/validator.dart";
+import "package:frontend/screens/home/homeScreen.dart";
 import "package:frontend/services/authServices.dart";
 import "package:frontend/widgets/customButton.dart";
 import "package:frontend/widgets/customTextfield.dart";
@@ -39,11 +42,19 @@ class _LoginScreenState extends State<LoginScreen> {
           identifier: identifierController.text.trim(),
           password: passwordController.text.trim()
       );
+      final token=response.data["data"]["token"];
+      await SharedPrefService.saveToken(token);
+      SocketService.instance.connect(token);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => HomePage(),
+        ),
+      );
     } on DioException catch (e) {
       final message = e.response?.data["message"] ??
           "Something went wrong";
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(message),
         backgroundColor: AppColors.error,
         behavior: SnackBarBehavior.floating,
@@ -54,8 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: const Text("An unexpected error occurred."),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,

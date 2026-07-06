@@ -4,20 +4,19 @@ import '../chat/chat_screen.dart';
 import '../auth/interest_screen.dart';
 
 class HomePage extends StatefulWidget {
-  final SocketService socketService;
+  // final SocketService socketService;
 
-  const HomePage(this.socketService, {super.key});
+  const HomePage( {super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage>
-     {
+class _HomePageState extends State<HomePage> {
   String status = "Tap below to meet someone new";
   int onlineUsers = 0;
   List<String> selectedInterests = [];
-
+  final socketService = SocketService.instance;
   bool get isSearching =>
       status.toLowerCase().contains("look") ||
           status.toLowerCase().contains("search");
@@ -27,15 +26,15 @@ class _HomePageState extends State<HomePage>
   void initState() {
     super.initState();
 
-    widget.socketService.socket.off("matched");
+    socketService.socket.off("matched");
 
-    widget.socketService.socket.on("matched", (roomId) {
+    socketService.socket.on("matched", (roomId) {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) =>
               ChatScreen(
-                socketService: widget.socketService,
+                socketService: socketService,
                 roomId: roomId,
               ),
         ),
@@ -44,7 +43,7 @@ class _HomePageState extends State<HomePage>
           setState(() {
             status = " Looking for a stranger...";
           });
-          widget.socketService.socket.emit("find_stranger", {
+          socketService.socket.emit("find_stranger", {
             "interests": selectedInterests,
           });
         } else {
@@ -55,7 +54,7 @@ class _HomePageState extends State<HomePage>
       });
     });
 
-    widget.socketService.socket.on("online_count", (count) {
+    socketService.socket.on("online_count", (count) {
       setState(() {
         onlineUsers = count;
       });
@@ -64,8 +63,8 @@ class _HomePageState extends State<HomePage>
 
   @override
   void dispose() {
-    widget.socketService.socket.off("matched");
-    widget.socketService.socket.off("online_count");
+    socketService.socket.off("matched");
+    socketService.socket.off("online_count");
     super.dispose();
   }
 
@@ -77,7 +76,7 @@ class _HomePageState extends State<HomePage>
 
     if (result != null) {
       selectedInterests = List<String>.from(result);
-      widget.socketService.socket.emit("find_stranger", {
+      socketService.socket.emit("find_stranger", {
         "interests": selectedInterests,
       });
     }
