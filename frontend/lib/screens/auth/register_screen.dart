@@ -1,13 +1,13 @@
+import "package:dio/dio.dart";
 import "package:flutter/material.dart";
 import "package:frontend/core/network/socket_service.dart";
 import "package:frontend/core/storage/shared_pref_service.dart";
 import "package:frontend/core/theme/appColor.dart";
 import "package:frontend/core/utils/validator.dart";
-import "package:frontend/screens/home/homeScreen.dart";
+import "package:frontend/screens/auth/profile_setup_screen.dart";
 import "package:frontend/services/authServices.dart";
 import "package:frontend/widgets/customButton.dart";
 import "package:frontend/widgets/customTextfield.dart";
-import 'package:dio/dio.dart';
 
 
 class RegisterScreen extends StatefulWidget {
@@ -33,6 +33,56 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool isLoading = false;
 
   AutovalidateMode autoValidateMode = AutovalidateMode.disabled;
+
+  Future <void>register()async{
+    setState(() {
+      autoValidateMode=AutovalidateMode.onUserInteraction;
+    });
+    if(!_formKey.currentState!.validate()) return;
+    if(passwordController.text.trim()!=confirmPasswordController.text.trim()){
+      ScaffoldMessenger.of(context).
+      showSnackBar(SnackBar(content: Text("Password Should be same"))
+      );
+      return;
+    }
+    try{
+      setState(() {
+        isLoading=true;
+      });
+      final response = await authService.register(
+        username: userNameController.text.trim(),
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      final loginResponse=await authService.login(
+          identifier:emailController.text.trim() ,
+          password: passwordController.text.trim()
+      );
+      final token =loginResponse.data["data"]["token"];
+      await SharedPrefService.saveToken(token);
+      SocketService.instance.connect(token);
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (_)=>ProfileSetupScreen())
+      );
+
+    }on DioException catch (e) {
+      final message =
+          e.response?.data["message"] ??
+              "Something went wrong";
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   void dispose() {
     emailController.dispose();
@@ -47,17 +97,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
 
       body: SafeArea(
-
         child: Center(
-
           child: SingleChildScrollView(
-
             padding: const EdgeInsets.symmetric(
               horizontal: 25,
             ),
-
             child: Form(
               key: _formKey,
+              autovalidateMode: autoValidateMode,
               child: Column(
                 children: [
                   Image.asset("assets/images/LOGO.png",
@@ -103,6 +150,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     labelText: "Username",
                     prefixIcon: Icons.person,
                     validator: Validators.username,
+
                   ),
                   SizedBox(height: 20),
                   // Email
@@ -165,7 +213,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   CustomButton(
                     text: "Create Account",
                     isLoading: isLoading,
-                    onPressed:(){},
+                    onPressed:register,
                   ),
                   // Register
                   SizedBox(height: 15),

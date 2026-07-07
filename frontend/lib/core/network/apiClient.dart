@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:frontend/core/constants/apiConstants.dart';
+import 'package:frontend/core/storage/shared_pref_service.dart';
 
 class ApiClient {
   ApiClient._();
@@ -14,4 +15,19 @@ class ApiClient {
       },
     ),
   );
+  static Future<void> initialize() async {
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final token = await SharedPrefService.getToken();
+
+          if (token != null) {
+            options.headers["Authorization"] =
+            "Bearer $token";
+          }
+          return handler.next(options);
+        },
+      ),
+    );
+  }
 }

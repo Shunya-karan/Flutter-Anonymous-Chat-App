@@ -30,8 +30,13 @@ class _LoginScreenState extends State<LoginScreen> {
   bool obscurePassword = true;
 
   bool isLoading = false;
+  AutovalidateMode autoValidateMode = AutovalidateMode.disabled;
+
 
   Future <void> login() async {
+    setState(() {
+      autoValidateMode=AutovalidateMode.onUserInteraction;
+    });
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -108,6 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
             child: Form(
               key: _formKey,
+              autovalidateMode: autoValidateMode,
               child: Column(
                 children: [
                   Image.asset("assets/images/LOGO.png",

@@ -7,17 +7,18 @@ const generateToken = require("../utils/genrateToken");
 
 const authService={
 
-   async registerUser(userData)  {
+  async registerUser(userData)  {
   const {username,email,password,interests,bio,gender,profileImage,
 } = userData;
 
-  const existingUser =await User.findOne({ email });
+  const existingEmail =await User.findOne({ email });
 
-  if (existingUser) {
-    throw new AppError(
-      "Email already exists",
-      409
-    );
+  if (existingEmail) {
+    throw new AppError("Email already exists",409);
+  }
+  const existingUser =await User.findOne({ username });
+
+    if (existingUser) {throw new AppError("User already exists",409);
   }
 
   const hashedPassword =await hashPassword(password);
@@ -26,7 +27,7 @@ const authService={
   return user;
 },
 
-   async loginUser({ identifier, password })  {
+  async loginUser({ identifier, password })  {
 
   const user = await User.findOne({
   $or:[
