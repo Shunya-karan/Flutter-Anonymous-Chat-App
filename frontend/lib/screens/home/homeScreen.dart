@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/network/socket_service.dart';
+import 'package:frontend/widgets/homecard.dart';
+import 'package:frontend/widgets/interestSection.dart';
+import 'package:frontend/widgets/onlineUser.dart';
+import 'package:frontend/widgets/welcomHeader.dart';
 import '../chat/chat_screen.dart';
 import '../auth/interest_screen.dart';
 
@@ -80,7 +84,6 @@ class _HomePageState extends State<HomePage> {
         "interests": selectedInterests,
       });
     }
-
     setState(() {
       status = "Looking for a stranger...";
     });
@@ -89,193 +92,25 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("TalkLoop"),
-        centerTitle: true,
-      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.circle,
-                        color: Colors.green,
-                        size: 12,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        "$onlineUsers Users Online",
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 40),
-
-              CircleAvatar(
-                radius: 50,
-                backgroundColor: Colors.blue.shade100,
-                child: Icon(
-                  isSearching
-                      ? Icons.search
-                      : Icons.people_alt_rounded,
-                  size: 50,
-                  color: Colors.blue,
-                ),
-              ),
-
-              const SizedBox(height: 30),
-
-              Text(
-                isSearching
-                    ? "Searching for someone..."
-                    : "Meet New People",
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              Text(
-                "Connect anonymously with people who share your interests.",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 16,
-                ),
-              ),
-
-              const SizedBox(height: 30),
-
-              if (selectedInterests.isNotEmpty)
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        const Text(
-                          "Selected Interests",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          alignment: WrapAlignment.center,
-                          children: selectedInterests
-                              .map(
-                                (interest) => Chip(
-                              label: Text(interest),
-                            ),
-                          )
-                              .toList(),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-              const SizedBox(height: 20),
-
-              if (isSearching)
-                Card(
-                  color: Colors.blue.shade50,
-                  child: const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                          ),
-                        ),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            "Looking for a stranger...",
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-              const SizedBox(height: 30),
-
-              OutlinedButton.icon(
-                onPressed: isSearching
-                    ? null
-                    : () async {
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => InterestScreen(),
-                    ),
-                  );
-
-                  if (result != null) {
-                    setState(() {
-                      selectedInterests =
-                      List<String>.from(result);
-                    });
-                  }
-                },
-                icon: const Icon(Icons.interests),
-                label: const Text("Choose Interests"),
-              ),
-
-              const SizedBox(height: 12),
-
-              SizedBox(
-                height: 55,
-                child: ElevatedButton.icon(
-                  onPressed: isSearching
-                      ? null
-                      : _findStranger,
-                  icon: Icon(
-                    isSearching
-                        ? Icons.hourglass_empty
-                        : Icons.chat,
-                  ),
-                  label: Text(
-                    isSearching
-                        ? "Searching..."
-                        : "Start Chat",
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              Text(
-                status,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                ),
-              ),
+              WelcomeHeader(username: "Karan"),
+              SizedBox(height: 15,),
+              OnlineUsersCard(onlineUsers: onlineUsers),
+              SizedBox(height: 25,),
+              HeroCard(isSearching: isSearching,),
+              SizedBox(height: 25,),
+              InterestsCard(interests: [
+                "Coding","Gaming",
+                "Music",
+                "Sports",
+              ],)
             ],
-          ),
+          )
         ),
       ),
     );

@@ -15,6 +15,8 @@ class ApiClient {
       },
     ),
   );
+
+
   static Future<void> initialize() async {
     dio.interceptors.add(
       InterceptorsWrapper(

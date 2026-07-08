@@ -1,7 +1,7 @@
 class ApiConstants {
   ApiConstants._();
 
-  static const String host = "10.174.198.243";
+  static const String host = "localhost";
 
   static const String baseUrl = "http://$host:3000/api";
   static const String socketUrl = "http://$host:3000";
