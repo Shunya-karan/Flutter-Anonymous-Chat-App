@@ -1,13 +1,16 @@
+
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/home/homeScreen.dart';
 import 'package:frontend/services/userServices.dart';
 import 'package:frontend/widgets/customButton.dart';
 import 'dart:io';
-
+import 'package:image_picker/image_picker.dart';
 import 'package:frontend/widgets/customTextfield.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
+
   const ProfileSetupScreen({super.key});
 
   @override
@@ -19,6 +22,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   String? selectedGender;
   List <String> selectedInterests=[];
   File? profileImage;
+  final ImagePicker picker =ImagePicker();
   bool isLoading =false;
   List<String> interests = [
     "Sports",
@@ -36,6 +40,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   ];
 
   Future<void> continueProfile() async{
+
     if (selectedGender == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -60,18 +65,26 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       final response= await UserService.updateProfile(
           gender:selectedGender! ,
           bio: bioController.text.trim(),
-          interests: selectedInterests);
+          interests: selectedInterests,
+          profileImage: profileImage
+      );
+
       Navigator.pushReplacement(context,
       MaterialPageRoute(builder: (Context)=>HomePage())
       );
-    }on DioException catch(e){
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            e.response?.data["message"] ??
-                "Something went wrong",),),
-      );
-    }finally{
+    } on DioException catch (e) {
+  print("Status Code: ${e.response?.statusCode}");
+  print("Response: ${e.response?.data}");
+  print("Error: ${e.message}");
+
+  ScaffoldMessenger.of(context).showSnackBar(
+  SnackBar(
+  content: Text(
+  e.response?.data["message"] ?? e.message ?? "Something went wrong",
+  ),
+  ),
+  );
+  }{
       if(mounted){
         setState(() {
           isLoading=false;
@@ -80,6 +93,19 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     }
   }
 
+  Future <void> pickImage()async{
+    final XFile? pickedImage= await picker.pickImage(
+    source: ImageSource.gallery,
+    imageQuality: 70,
+      maxWidth: 800,
+      maxHeight: 800,
+
+    );
+    if(pickedImage==null) return;
+    setState(() {
+      profileImage =File(pickedImage.path);
+    });
+  }
   @override
   void dispose() {
     bioController.dispose();
@@ -111,18 +137,19 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               Stack(
                 children: [
                   CircleAvatar(
-                    radius: 55,
+                    radius: 60,
+                    backgroundColor: Colors.grey.shade200,
                     backgroundImage:
                         profileImage!=null?FileImage(profileImage!):null,
                     child: profileImage==null
-                        ?const Icon(Icons.person ,size: 50,)
+                        ?const Icon(Icons.person ,size: 60,)
                         :null,
                   ),
                   Positioned(
                       bottom: 0,right: 0,
                       child: CircleAvatar(
                     radius: 18,
-                    child: IconButton(onPressed: (){},
+                    child: IconButton(onPressed:pickImage,
                         icon: Icon(Icons.camera_alt,size: 20,)),
                   ))
                 ],
@@ -190,9 +217,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               //Continue Button
               const SizedBox(height: 30),
               CustomButton(
-                text: "Continue",
+                text: isLoading?"Uploading profile..":"Continue",
                 isLoading: isLoading,
-                onPressed: continueProfile,
+                  onPressed: isLoading ? null : continueProfile,
               ),
 
             ],

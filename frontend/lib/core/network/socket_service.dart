@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:frontend/core/constants/apiConstants.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SocketService {
@@ -10,8 +11,7 @@ class SocketService {
 
   void connect(String token) {
     socket = IO.io(
-        // "http://10.137.58.243:3000",
-        "http://localhost:3000",
+        ApiConstants.socketUrl,
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .setAuth({

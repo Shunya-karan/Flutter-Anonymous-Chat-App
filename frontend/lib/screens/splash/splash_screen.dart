@@ -54,62 +54,90 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
 
     return Scaffold(
-
       body: SafeArea(
-
-        child: Center(
-
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Column(
-            mainAxisAlignment:
-            MainAxisAlignment.center,
-
             children: [
+              const Spacer(),
 
-              Image.asset(
-                "assets/images/logo.png",
-                width: 100,
-                height: 100,
+              // Logo
+              Container(
+                height: 180,
+                width: 180,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withOpacity(0.08),
+                  shape: BoxShape.circle,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(25),
+                  child: Image.asset(
+                    "assets/images/LOGO.png",
+                    fit: BoxFit.contain,
+                  ),
+                ),
               ),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 35),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Talk",
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineLarge,
-                  ),Text(
-                    " Loop",
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.primary
+              // App Name
+              RichText(
+                text: TextSpan(
+                  style: theme.textTheme.headlineLarge,
+                  children: [
+                    const TextSpan(text: "Talk"),
+                    TextSpan(
+                      text: " Loop",
+                      style: theme.textTheme.headlineLarge?.copyWith(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
+                  ],
+                ),
+              ),
 
+              const SizedBox(height: 12),
+
+              Text(
+                "Connect. Chat. Stay Anonymous.",
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
+                  letterSpacing: 0.3,
+                ),
+              ),
+
+              const Spacer(),
+
+              Column(
+                children: [
+                  SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  Text(
+                    "Loading...",
+                    style: theme.textTheme.bodySmall,
                   ),
                 ],
               ),
 
-              const SizedBox(height: 8),
-
-              Text("Connect. Chat. Stay Anonymous.",
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium,
-              ),
-
-              const SizedBox(height: 50),
-
-              const CircularProgressIndicator(),
+              const SizedBox(height: 40),
             ],
           ),
         ),
       ),
     );
-  }
-}
+  }}

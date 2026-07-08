@@ -5,7 +5,8 @@ const updateProfile = async (req, res, next) => {
 
     const user = await userService.updateProfile(
       req.user._id,
-      req.body
+      req.body,
+      req.file
     );
 
     res.status(200).json({

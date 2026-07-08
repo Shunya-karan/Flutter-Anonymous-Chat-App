@@ -1,10 +1,10 @@
 class ApiConstants {
   ApiConstants._();
 
-  // static const String baseUrl = "http://10.0.2.2:3000/api";
+  static const String host = "10.174.198.243";
 
-  //static const String baseUrl= "http://10.130.78.243:3000/api";
-  static const String baseUrl = "http://localhost:3000/api";
+  static const String baseUrl = "http://$host:3000/api";
+  static const String socketUrl = "http://$host:3000";
   static const String login = "/auth/login";
   static const String register = "/auth/register";
   static const String me = "/users/me";
