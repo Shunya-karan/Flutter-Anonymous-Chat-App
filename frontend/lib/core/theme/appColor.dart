@@ -5,7 +5,7 @@ class AppColors {
 
   // Brand Colors
   static const Color primary = Color(0xFF2563EB);
-  static const Color secondary = Color(0xFF4F46E5);
+  static const Color secondary = Color(0xFF3BCC8A);
 
   // Light Theme
   static const Color lightBackground = Color(0xFFF8FAFC);

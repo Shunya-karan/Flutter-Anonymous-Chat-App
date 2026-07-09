@@ -7,7 +7,7 @@ class ApiConstants {
   static const String socketUrl = "http://$host:3000";
   static const String login = "/auth/login";
   static const String register = "/auth/register";
-  static const String me = "/users/me";
+  static const String me = "/auth/me";
   static const String updateProfile = "/users/update-profile";
   static const String changePassword = "/users/change-password";
 }

@@ -35,7 +35,7 @@ class OnlineUsersCard extends StatelessWidget {
             const SizedBox(width: 12),
 
             Text(
-              "$onlineUsers Users Online",
+              "$onlineUsers people are online right now",
               style: Theme.of(context)
                   .textTheme
                   .titleMedium,

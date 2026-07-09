@@ -3,11 +3,13 @@ import 'package:frontend/core/constants/apiConstants.dart';
 import 'package:frontend/core/network/apiClient.dart';
 import 'dart:io';
 
+import 'package:frontend/models/userModel.dart';
+
 
 class UserService{
   UserService._();
 
-  static Future<Response> updateProfile({
+  static Future <Response>updateProfile({
     required String gender,
     required String bio,
     required List<String> interests,
@@ -21,12 +23,21 @@ class UserService{
       formData.fields.add(MapEntry("interests", interest));
     }
     if(profileImage !=null){
-      formData.files.add(MapEntry("profileImage",
-      await MultipartFile.fromFile(
-        profileImage.path,filename: profileImage.path.split("/").last,
-      ),
-      ),);
+      final multipartFile = await MultipartFile.fromFile(
+        profileImage.path,
+        filename: profileImage.path.split("/").last,
+      );
+      formData.files.add(MapEntry("profileImage", multipartFile));
     }
    return await ApiClient.dio.put(ApiConstants.updateProfile,data: formData);
+  }
+
+  static Future<UserModel> getProfile() async {
+    final response = await ApiClient.dio.get(ApiConstants.me);
+    if (response.data != null && response.data["data"] != null) {
+      return UserModel.fromJson(response.data["data"]);
+    } else {
+      throw Exception("Failed to load user profile data");
+    }
   }
 }

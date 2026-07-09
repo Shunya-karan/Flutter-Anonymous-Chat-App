@@ -14,7 +14,7 @@ class WelcomeHeader extends StatelessWidget {
     return Row(
       children: [
         CircleAvatar(
-          radius: 39,
+          radius: 35,
             backgroundImage:
             profileImage !=null?NetworkImage(profileImage!):null,
           child: profileImage==null?Icon(Icons.person):null,
@@ -27,20 +27,25 @@ class WelcomeHeader extends StatelessWidget {
               "Welcome Back ",
               style: Theme.of(context)
                   .textTheme
-                  .bodyMedium,
+                  .headlineSmall,
             ),
             const SizedBox(height: 4),
             Text(
               username,
               style: Theme.of(context)
                   .textTheme
-                  .headlineSmall,
+                  .headlineMedium,
             ),
           ],
         )),
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.settings),
+        CircleAvatar(
+          radius: 20,
+          backgroundColor: Colors.grey,
+          child: IconButton(
+            onPressed: () {
+            },
+            icon:  Icon(Icons.settings),
+          ),
         ),
       ],
     );

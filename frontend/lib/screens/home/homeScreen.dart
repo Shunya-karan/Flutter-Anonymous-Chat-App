@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/network/socket_service.dart';
+import 'package:frontend/models/userModel.dart';
+import 'package:frontend/services/userServices.dart';
 import 'package:frontend/widgets/homecard.dart';
 import 'package:frontend/widgets/interestSection.dart';
 import 'package:frontend/widgets/onlineUser.dart';
@@ -22,19 +24,18 @@ class _HomePageState extends State<HomePage> {
 
   int onlineUsers = 0;
 
-  List<String> userInterests  = ["Coding","Gaming",
-    "Music",
-    "Sports"];
-
+  List<String> userInterests  = [];
   final socketService = SocketService.instance;
   bool  isSearching = false;
+
+  UserModel?user;
+  bool isLoading =true;
 
   @override
   void initState() {
     super.initState();
-
+    LoadProfile();
     socketService.socket.off("matched");
-
     socketService.socket.on("matched", (roomId) {
       Navigator.push(
         context,
@@ -74,15 +75,33 @@ class _HomePageState extends State<HomePage> {
 
 //Find Stranger function
   Future<void> _findStranger() async {
+    try {
       socketService.socket.emit("find_stranger", {
-        "interests": userInterests ,
+        "interests": userInterests,
       });
-    setState(() {
-      isSearching=true;
-      status = "Looking for a stranger...";
-    });
+      setState(() {
+        isSearching = true;
+        status = "Looking for a stranger...";
+      });
+    }catch(error){
+      print(error);
+    }
   }
 
+  Future<void>LoadProfile()async{
+    try{
+      final profile=await UserService.getProfile();
+      setState(() {
+        user = profile;
+        userInterests = profile.interests;
+        isLoading=false;
+      });
+    }catch(_){
+      setState(() {
+        isLoading=false;
+      });
+    }
+  }
   @override
   void dispose() {
     socketService.socket.off("matched");
@@ -100,14 +119,15 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              WelcomeHeader(username: "Karan"),
-              SizedBox(height: 25,),
-              OnlineUsersCard(onlineUsers: onlineUsers),
-              SizedBox(height: 25,),
-              HeroCard(isSearching: isSearching,),
-              SizedBox(height: 25,),
-              InterestsCard(interests: userInterests,),
+              WelcomeHeader(username: user?.username??"",
+                profileImage: user?.profileImage,),
               SizedBox(height: 30,),
+              OnlineUsersCard(onlineUsers: onlineUsers),
+              SizedBox(height: 30,),
+              HeroCard(isSearching: isSearching,),
+              SizedBox(height: 30,),
+              InterestsCard(interests: user?.interests??[],),
+              SizedBox(height: 40,),
               StartChatButton(isSearching: isSearching,
                 status: status,
                 onPressed:_findStranger,),

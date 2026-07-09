@@ -114,7 +114,7 @@ class InterestsCard extends StatelessWidget {
 
                     padding:
                     const EdgeInsets.symmetric(
-                      horizontal: 10,
+                      horizontal: 12,
                       vertical: 8,
                     ),
                   );

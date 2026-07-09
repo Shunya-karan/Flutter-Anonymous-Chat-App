@@ -12,7 +12,7 @@ class Securityfooter extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: Card(
-        elevation: 2,
+        elevation: 0,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24)
           ),
