@@ -51,8 +51,7 @@ class InterestsCard extends StatelessWidget {
       child: Card(
         elevation: 1,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
+          borderRadius: BorderRadius.circular(24)),
         child: Padding(
           padding: const EdgeInsets.all(18),
           child: Column(
@@ -89,7 +88,6 @@ class InterestsCard extends StatelessWidget {
                 runSpacing: 15,
                 children: interests.map((interest) {
                   return Chip(
-
                     avatar: Icon(
                       _getInterestIcon(interest),
                       size: 18,
