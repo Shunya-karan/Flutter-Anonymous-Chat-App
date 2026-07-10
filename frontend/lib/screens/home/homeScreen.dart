@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/core/network/socket_service.dart';
 import 'package:frontend/models/userModel.dart';
 import 'package:frontend/services/userServices.dart';
+import 'package:frontend/widgets/appDrawer.dart';
 import 'package:frontend/widgets/homecard.dart';
 import 'package:frontend/widgets/interestSection.dart';
 import 'package:frontend/widgets/onlineUser.dart';
@@ -113,6 +114,10 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      endDrawer: AppDrawer(username: user?.username??"",
+      profileImage: user?.profileImage,
+        bio: user?.bio,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),

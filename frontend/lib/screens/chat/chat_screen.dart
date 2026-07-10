@@ -199,133 +199,135 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
 
-        body: Column(
-          children: [
-            Expanded(
-              child: messages.isEmpty
-                  ? const Center(
-                child: Text(
-                  "You are connected.\nSay hello ",
-                  textAlign: TextAlign.center,
-                ),
-              )
-                  : ListView.builder(
-                controller: scrollController,
-                padding: const EdgeInsets.all(12),
-                itemCount: messages.length,
-                itemBuilder: (context, index) {
-                  final msg = messages[index];
-                  final isMe = msg["sender"] == myId;
-
-                  return Align(
-                    alignment: isMe
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 4,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: messages.isEmpty
+                    ? const Center(
+                  child: Text(
+                    "You are connected.\nSay hello ",
+                    textAlign: TextAlign.center,
+                  ),
+                )
+                    : ListView.builder(
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(12),
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    final msg = messages[index];
+                    final isMe = msg["sender"] == myId;
+          
+                    return Align(
+                      alignment: isMe
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 4,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        constraints: BoxConstraints(
+                          maxWidth:
+                          MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.75,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isMe
+                              ? Colors.blue
+                              : Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          msg["message"],
+                          style: TextStyle(
+                            color: isMe
+                                ? Colors.white
+                                : Colors.black87,
+                          ),
+                        ),
                       ),
+                    );
+                  },
+                ),
+              ),
+          
+              if (strangerTyping)
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    bottom: 8,
+                  ),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
-                        vertical: 10,
-                      ),
-                      constraints: BoxConstraints(
-                        maxWidth:
-                        MediaQuery
-                            .of(context)
-                            .size
-                            .width * 0.75,
+                        vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: isMe
-                            ? Colors.blue
-                            : Colors.grey.shade300,
+                        color: Colors.grey.shade300,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(
-                        msg["message"],
-                        style: TextStyle(
-                          color: isMe
-                              ? Colors.white
-                              : Colors.black87,
-                        ),
+                      child: const Text(
+                        "Typing...",
                       ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            if (strangerTyping)
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: 16,
-                  bottom: 8,
-                ),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Text(
-                      "Typing...",
                     ),
                   ),
                 ),
-              ),
-
-            Container(
-              padding: const EdgeInsets.all(10),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: messageController,
-                      decoration: InputDecoration(
-                        hintText: "Type a message",
-                        border: OutlineInputBorder(
-                          borderRadius:
-                          BorderRadius.circular(25),
+          
+              Container(
+                padding: const EdgeInsets.all(10),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: messageController,
+                        decoration: InputDecoration(
+                          hintText: "Type a message",
+                          border: OutlineInputBorder(
+                            borderRadius:
+                            BorderRadius.circular(25),
+                          ),
                         ),
+                        onChanged: (value) {
+                          widget.socketService.socket
+                              .emit("typing", widget.roomId);
+          
+                          typingTimer?.cancel();
+          
+                          typingTimer = Timer(
+                            const Duration(seconds: 1),
+                                () {
+                              widget.socketService.socket.emit(
+                                "stop_typing",
+                                widget.roomId,
+                              );
+                            },
+                          );
+                        },
                       ),
-                      onChanged: (value) {
-                        widget.socketService.socket
-                            .emit("typing", widget.roomId);
-
-                        typingTimer?.cancel();
-
-                        typingTimer = Timer(
-                          const Duration(seconds: 1),
-                              () {
-                            widget.socketService.socket.emit(
-                              "stop_typing",
-                              widget.roomId,
-                            );
-                          },
-                        );
-                      },
                     ),
-                  ),
-
-                  const SizedBox(width: 8),
-
-                  CircleAvatar(
-                    radius: 24,
-                    child: IconButton(
-                      icon: const Icon(Icons.send),
-                      onPressed: sendMessage,
+          
+                    const SizedBox(width: 8),
+          
+                    CircleAvatar(
+                      radius: 24,
+                      child: IconButton(
+                        icon: const Icon(Icons.send),
+                        onPressed: sendMessage,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -14,7 +14,7 @@ class Securityfooter extends StatelessWidget {
       child: Card(
         elevation: 0,
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24)
+              borderRadius: BorderRadius.circular(10)
           ),
         child: Padding(
           padding: const EdgeInsets.all(18.0),
@@ -24,19 +24,19 @@ class Securityfooter extends StatelessWidget {
               Icon(Icons.lock,size: 20,),
               SizedBox(width: 5),
               Text("Anonymous",
-                  style:LightTheme.theme.textTheme.titleSmall),
+                  style:LightTheme.theme.textTheme.bodySmall),
               SizedBox(width: 20,),
 
               Icon(Icons.bolt,size: 20),
               SizedBox(width: 5),
               Text("Fast Match",
-                  style:LightTheme.theme.textTheme.titleSmall),
+                  style:LightTheme.theme.textTheme.bodySmall),
               SizedBox(width: 20,),
 
               Icon(Icons.shield,size: 20),
               SizedBox(width: 5),
               Text("Secure",
-                  style:LightTheme.theme.textTheme.titleSmall),
+                  style:LightTheme.theme.textTheme.bodySmall),
               SizedBox(width: 20,),
             ],
           ),

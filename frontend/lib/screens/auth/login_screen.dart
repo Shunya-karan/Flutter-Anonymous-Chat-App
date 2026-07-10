@@ -9,6 +9,7 @@ import "package:frontend/services/authServices.dart";
 import "package:frontend/widgets/customButton.dart";
 import "package:frontend/widgets/customTextfield.dart";
 import 'package:dio/dio.dart';
+import "package:frontend/widgets/securityFooter.dart";
 
 
 class LoginScreen extends StatefulWidget {
@@ -226,6 +227,8 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
+      bottomNavigationBar: SafeArea(child: Securityfooter()),
     );
+
   }
 }

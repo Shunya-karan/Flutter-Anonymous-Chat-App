@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/screens/home/homeScreen.dart';
 import 'package:frontend/services/userServices.dart';
 import 'package:frontend/widgets/customButton.dart';
+import 'package:frontend/widgets/securityFooter.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:frontend/widgets/customTextfield.dart';
@@ -226,6 +227,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           ),
         ),
       )),
+      bottomNavigationBar: SafeArea(child: Securityfooter()),
+
     );
   }
 }

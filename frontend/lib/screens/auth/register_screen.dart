@@ -8,6 +8,7 @@ import "package:frontend/screens/auth/profile_setup_screen.dart";
 import "package:frontend/services/authServices.dart";
 import "package:frontend/widgets/customButton.dart";
 import "package:frontend/widgets/customTextfield.dart";
+import "package:frontend/widgets/securityFooter.dart";
 
 
 class RegisterScreen extends StatefulWidget {
@@ -240,6 +241,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         ),
       ),
+      bottomNavigationBar: SafeArea(child: Securityfooter()),
     );
   }
 }

@@ -13,11 +13,31 @@ class WelcomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        CircleAvatar(
-          radius: 35,
-            backgroundImage:
-            profileImage !=null?NetworkImage(profileImage!):null,
-          child: profileImage==null?Icon(Icons.person):null,
+        Stack(
+          children:[
+            CircleAvatar(
+            radius: 35,
+              backgroundImage:
+              profileImage !=null?NetworkImage(profileImage!):null,
+            child: profileImage==null?Icon(Icons.person):null,
+          ),
+            Positioned(
+              bottom: 2,
+              right: 2,
+              child: Container(
+                height: 16,
+                width: 16,
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 2,
+                  ),
+                ),
+              ),
+            ),
+          ]
         ),
         SizedBox(width: 15),
         Expanded(child: Column(
@@ -40,11 +60,16 @@ class WelcomeHeader extends StatelessWidget {
         )),
         CircleAvatar(
           radius: 20,
-          backgroundColor: Colors.grey,
-          child: IconButton(
-            onPressed: () {
+          backgroundColor: Colors.grey.shade400,
+          child: Builder(
+            builder: (context) {
+              return IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openEndDrawer();
+                },
+              );
             },
-            icon:  Icon(Icons.settings),
           ),
         ),
       ],
