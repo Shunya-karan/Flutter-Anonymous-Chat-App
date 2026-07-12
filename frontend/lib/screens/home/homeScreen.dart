@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/network/socket_service.dart';
+import 'package:frontend/core/storage/shared_pref_service.dart';
 import 'package:frontend/models/userModel.dart';
+import 'package:frontend/screens/auth/login_screen.dart';
 import 'package:frontend/services/userServices.dart';
 import 'package:frontend/widgets/appDrawer.dart';
 import 'package:frontend/widgets/homecard.dart';
@@ -103,6 +105,7 @@ class _HomePageState extends State<HomePage> {
       });
     }
   }
+
   @override
   void dispose() {
     socketService.socket.off("matched");
@@ -126,13 +129,13 @@ class _HomePageState extends State<HomePage> {
             children: [
               WelcomeHeader(username: user?.username??"",
                 profileImage: user?.profileImage,),
-              SizedBox(height: 30,),
-              OnlineUsersCard(onlineUsers: onlineUsers),
-              SizedBox(height: 30,),
-              HeroCard(isSearching: isSearching,),
-              SizedBox(height: 30,),
-              InterestsCard(interests: user?.interests??[],),
               SizedBox(height: 40,),
+              OnlineUsersCard(onlineUsers: onlineUsers),
+              SizedBox(height: 40,),
+              HeroCard(isSearching: isSearching,),
+              SizedBox(height: 40,),
+              InterestsCard(interests: user?.interests??[],),
+              SizedBox(height: 60,),
               StartChatButton(isSearching: isSearching,
                 status: status,
                 onPressed:_findStranger,),

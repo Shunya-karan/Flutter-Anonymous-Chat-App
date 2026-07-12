@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/core/network/socket_service.dart';
+import 'package:frontend/core/storage/shared_pref_service.dart';
+import 'package:frontend/screens/auth/login_screen.dart';
 
 class LogoutButton extends StatelessWidget {
 
@@ -11,6 +14,14 @@ class LogoutButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Future<void>Logout()async{
+      await SharedPrefService.removeToken();
+      SocketService.instance.disconnect();
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_)=>LoginScreen()
+          ), (_)=>false);
+    }
 
     return SizedBox(
       width: double.infinity,
@@ -42,7 +53,7 @@ class LogoutButton extends StatelessWidget {
           ),
         ),
 
-        onPressed: onPressed,
+        onPressed: Logout,
       ),
     );
   }

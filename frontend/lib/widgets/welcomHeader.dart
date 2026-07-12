@@ -44,17 +44,17 @@ class WelcomeHeader extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Welcome Back ",
+              "Welcome Back",
               style: Theme.of(context)
                   .textTheme
-                  .headlineSmall,
+                  .titleMedium,
             ),
             const SizedBox(height: 4),
             Text(
               username,
               style: Theme.of(context)
                   .textTheme
-                  .headlineMedium,
+                  .titleLarge,
             ),
           ],
         )),

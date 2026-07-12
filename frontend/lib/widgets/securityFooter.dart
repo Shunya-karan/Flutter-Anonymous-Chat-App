@@ -17,7 +17,7 @@ class Securityfooter extends StatelessWidget {
               borderRadius: BorderRadius.circular(10)
           ),
         child: Padding(
-          padding: const EdgeInsets.all(18.0),
+          padding: const EdgeInsets.symmetric(vertical: 18.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [

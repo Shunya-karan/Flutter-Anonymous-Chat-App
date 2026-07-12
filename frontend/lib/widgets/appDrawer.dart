@@ -32,15 +32,12 @@ class AppDrawer extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 20),
-
             ProfileHeader(
               username: username,
               bio: bio,
               profileImage: profileImage,
             ),
-
             const SizedBox(height: 30),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Align(
@@ -56,9 +53,7 @@ class AppDrawer extends StatelessWidget {
                 ),
               ),
             ),
-
             const SizedBox(height: 12),
-
             Expanded(
               child: ListView(
                 padding:
@@ -66,7 +61,7 @@ class AppDrawer extends StatelessWidget {
                 children: [
                   SettingsTile(
                     icon: Icons.person_outline,
-                    title: "Edit Profile",
+                    title: "Profile",
                     onTap: () {},
                   ),
 
@@ -87,9 +82,15 @@ class AppDrawer extends StatelessWidget {
                     title: "About TalkLoop",
                     onTap: () {},
                   ),
+                  SettingsTile(
+                    icon: Icons.star_border_outlined,
+                    title: "Rate App",
+                    onTap: () {},
+                  ),
                 ],
               ),
             ),
+            const SizedBox(height: 15),
 
             Padding(
               padding:
