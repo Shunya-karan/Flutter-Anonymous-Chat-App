@@ -6,9 +6,9 @@ import "package:frontend/core/theme/appColor.dart";
 import "package:frontend/core/utils/validator.dart";
 import "package:frontend/screens/auth/profile_setup_screen.dart";
 import "package:frontend/services/authServices.dart";
-import "package:frontend/widgets/customButton.dart";
-import "package:frontend/widgets/customTextfield.dart";
-import "package:frontend/widgets/securityFooter.dart";
+import "package:frontend/widgets/CustomWidgets/customButton.dart";
+import "package:frontend/widgets/CustomWidgets/customTextfield.dart";
+import "package:frontend/widgets/HomeScreenWidgets/securityFooter.dart";
 
 
 class RegisterScreen extends StatefulWidget {

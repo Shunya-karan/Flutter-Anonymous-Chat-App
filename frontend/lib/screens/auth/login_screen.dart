@@ -6,10 +6,10 @@ import "package:frontend/core/utils/validator.dart";
 import "package:frontend/screens/auth/register_screen.dart";
 import "package:frontend/screens/home/homeScreen.dart";
 import "package:frontend/services/authServices.dart";
-import "package:frontend/widgets/customButton.dart";
-import "package:frontend/widgets/customTextfield.dart";
+import "package:frontend/widgets/CustomWidgets/customButton.dart";
+import "package:frontend/widgets/CustomWidgets/customTextfield.dart";
 import 'package:dio/dio.dart';
-import "package:frontend/widgets/securityFooter.dart";
+import "package:frontend/widgets/HomeScreenWidgets/securityFooter.dart";
 
 
 class LoginScreen extends StatefulWidget {

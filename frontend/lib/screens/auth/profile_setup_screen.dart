@@ -1,14 +1,13 @@
-
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/home/homeScreen.dart';
 import 'package:frontend/services/userServices.dart';
-import 'package:frontend/widgets/customButton.dart';
-import 'package:frontend/widgets/securityFooter.dart';
+import 'package:frontend/widgets/CustomWidgets/customButton.dart';
+import 'package:frontend/widgets/HomeScreenWidgets/securityFooter.dart';
+import 'package:frontend/widgets/Profile/profile_image_picker.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:frontend/widgets/customTextfield.dart';
+import 'package:frontend/widgets/CustomWidgets/customTextfield.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
 
@@ -62,7 +61,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       setState(() {
         isLoading =true;
       });
-
       final response= await UserService.updateProfile(
           gender:selectedGender! ,
           bio: bioController.text.trim(),
@@ -74,9 +72,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       MaterialPageRoute(builder: (Context)=>HomePage())
       );
     } on DioException catch (e) {
-  print("Status Code: ${e.response?.statusCode}");
-  print("Response: ${e.response?.data}");
-  print("Error: ${e.message}");
 
   ScaffoldMessenger.of(context).showSnackBar(
   SnackBar(
@@ -94,19 +89,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     }
   }
 
-  Future <void> pickImage()async{
-    final XFile? pickedImage= await picker.pickImage(
-    source: ImageSource.gallery,
-    imageQuality: 70,
-      maxWidth: 800,
-      maxHeight: 800,
-
-    );
-    if(pickedImage==null) return;
-    setState(() {
-      profileImage =File(pickedImage.path);
-    });
-  }
   @override
   void dispose() {
     bioController.dispose();
@@ -135,25 +117,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               ),
               SizedBox(height: 30,),
               //Profile Image
-              Stack(
-                children: [
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundColor: Colors.grey.shade200,
-                    backgroundImage:
-                        profileImage!=null?FileImage(profileImage!):null,
-                    child: profileImage==null
-                        ?const Icon(Icons.person ,size: 60,)
-                        :null,
-                  ),
-                  Positioned(
-                      bottom: 0,right: 0,
-                      child: CircleAvatar(
-                    radius: 18,
-                    child: IconButton(onPressed:pickImage,
-                        icon: Icon(Icons.camera_alt,size: 20,)),
-                  ))
-                ],
+              ProfileImagePicker(
+                image: profileImage,
+                onImageSelected: (image) {
+
+                  setState(() {
+                    profileImage = image;
+                  });
+                },
               ),
               const SizedBox(height: 35),
               //Gender

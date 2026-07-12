@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/widgets/logout_button.dart';
-import 'package:frontend/widgets/profile_header.dart';
-import 'package:frontend/widgets/setting_tile.dart';
+import 'package:frontend/widgets/Menus/profile_header.dart';
+import 'package:frontend/widgets/Menus/setting_tile.dart';
 
 class AppDrawer extends StatelessWidget {
   final String username;
