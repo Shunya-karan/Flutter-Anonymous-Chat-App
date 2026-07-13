@@ -4,6 +4,8 @@ import 'package:frontend/screens/home/homeScreen.dart';
 import 'package:frontend/services/userServices.dart';
 import 'package:frontend/widgets/CustomWidgets/customButton.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/securityFooter.dart';
+import 'package:frontend/widgets/Profile/InterestSelecter.dart';
+import 'package:frontend/widgets/Profile/genderselecter.dart';
 import 'package:frontend/widgets/Profile/profile_image_picker.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -24,20 +26,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   File? profileImage;
   final ImagePicker picker =ImagePicker();
   bool isLoading =false;
-  List<String> interests = [
-    "Sports",
-    "Gaming",
-    "Music",
-    "Coding",
-    "Movies",
-    "Books",
-    "Travel",
-    "Food",
-    "Photography",
-    "Fitness",
-    "Technology",
-    "Art",
-  ];
 
   Future<void> continueProfile() async{
 
@@ -133,20 +121,12 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 15),
-              Wrap(
-                spacing: 10,
-                children: ["Male", "Female", "Other"].map((gender) {
-                  return ChoiceChip(
-                    label: Text(gender),
-                    selected: selectedGender == gender,
-                    onSelected: (selected) {
-                      setState(() {
-                        selectedGender = gender;
-                      });
-                    },
-                  );
-                }).toList(),
-              ),
+              GenderSelecter(selectedGender: selectedGender,
+                  onChanged: (gender){
+                setState(() {
+                  selectedGender=gender;
+                });
+              }),
               //Bio
               SizedBox(height: 20),
               CustomTextField(
@@ -161,30 +141,13 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               Text(
                 "Select Interests",
                 style: Theme.of(context).textTheme.titleMedium,),
+              InterestSelector(selectedInterests: selectedInterests,
+                  onChanged: (interest){
+                    setState(() {
+                      selectedInterests=interest;
+                    });
+                  }),
               const SizedBox(height: 15),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: interests.map((interest) {
-                  final selected = selectedInterests.contains(interest);
-                  return FilterChip(
-                    label: Text(interest),
-                    selected: selected,
-                    onSelected: (value) {
-                      setState(() {
-                        if (selected) {
-                          selectedInterests.remove(
-                              interest);
-                        } else {
-                          selectedInterests.add(
-                              interest);
-                        }
-                      });
-                    },
-                  );
-
-                }).toList(),
-              ),
 
               //Continue Button
               const SizedBox(height: 30),
