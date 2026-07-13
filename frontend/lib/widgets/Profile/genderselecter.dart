@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 
-class GenderSelecter extends StatelessWidget  {
+class GenderSelector extends StatelessWidget  {
   final String?selectedGender;
   final ValueChanged<String>onChanged;
-  const GenderSelecter({super.key,
+  const GenderSelector({super.key,
   required this.selectedGender,
     required this.onChanged
   });

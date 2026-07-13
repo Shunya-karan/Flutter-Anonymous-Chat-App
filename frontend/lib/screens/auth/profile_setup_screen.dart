@@ -121,7 +121,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 15),
-              GenderSelecter(selectedGender: selectedGender,
+              GenderSelector(selectedGender: selectedGender,
                   onChanged: (gender){
                 setState(() {
                   selectedGender=gender;
@@ -136,6 +136,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 maxLines: 4,
                 prefixIcon: Icons.notes_outlined,
               ),
+
               //Interest
                SizedBox(height: 20),
               Text(
@@ -147,8 +148,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                       selectedInterests=interest;
                     });
                   }),
-              const SizedBox(height: 15),
 
+              const SizedBox(height: 15),
               //Continue Button
               const SizedBox(height: 30),
               CustomButton(
