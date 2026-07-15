@@ -10,6 +10,7 @@ class UserService{
   UserService._();
 
   static Future <Response>updateProfile({
+    String? username,
     required String gender,
     required String bio,
     required List<String> interests,
@@ -17,6 +18,7 @@ class UserService{
   }) async {
     final formData = FormData();
 
+    formData.fields.add(MapEntry("username",username!));
     formData.fields.add(MapEntry("gender", gender));
     formData.fields.add(MapEntry("bio", bio));
     for (final interest in interests){

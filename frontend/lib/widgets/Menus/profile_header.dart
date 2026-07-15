@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/profile/edit_profile.dart';
 
 class ProfileHeader extends StatelessWidget {
   final String username;
@@ -108,7 +109,10 @@ class ProfileHeader extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: () {},
+                onPressed:(){
+                Navigator.push(context, MaterialPageRoute(
+                    builder: (_)=> EditProfileScreen()));
+                },
                 icon: const Icon(Icons.edit),
                 label: const Text("Edit Profile"),
                 style: FilledButton.styleFrom(
