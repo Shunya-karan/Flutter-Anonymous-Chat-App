@@ -99,6 +99,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             SizedBox(height: 30,),
 
             ProfileForm(profileImage: profileImage,
+                imageUrl: null,
                 onImageSelected: (image) {
                       setState(() {
                         profileImage = image;

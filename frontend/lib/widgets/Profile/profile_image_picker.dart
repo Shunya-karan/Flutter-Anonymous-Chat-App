@@ -4,11 +4,14 @@ import 'dart:io';
 
 class ProfileImagePicker extends StatefulWidget {
   final File? image;
+  final String? imageUrl;
   final ValueChanged<File?> onImageSelected;
+
 
   const ProfileImagePicker({
     super.key,
     required this.image,
+    this.imageUrl,
     required this.onImageSelected,
   });
 
@@ -29,10 +32,7 @@ class _ProfileImagePickerState
       maxWidth: 800,
       maxHeight: 800,
     );
-
     if (pickedImage == null) return;
-
-
     widget.onImageSelected(
       File(pickedImage.path),
     );
@@ -43,12 +43,14 @@ class _ProfileImagePickerState
     return Stack(
       children: [
         CircleAvatar(
-          radius: 60,
+          radius: 50,
           backgroundColor: Colors.grey.shade200,
           backgroundImage: widget.image != null
               ? FileImage(widget.image!)
+              : widget.imageUrl != null
+              ? NetworkImage(widget.imageUrl!,)
               : null,
-          child: widget.image == null
+          child: widget.image == null && widget.imageUrl==null
               ? const Icon(
             Icons.person,
             size: 60,

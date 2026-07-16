@@ -17,7 +17,6 @@ class UserService{
     File? profileImage,
   }) async {
     final formData = FormData();
-
     formData.fields.add(MapEntry("username",username!));
     formData.fields.add(MapEntry("gender", gender));
     formData.fields.add(MapEntry("bio", bio));
