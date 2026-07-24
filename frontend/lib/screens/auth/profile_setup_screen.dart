@@ -1,11 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/providers/userprovider.dart';
 import 'package:frontend/screens/home/homeScreen.dart';
 import 'package:frontend/services/userServices.dart';
 import 'package:frontend/widgets/CustomWidgets/customButton.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/securityFooter.dart';
 import 'package:frontend/widgets/Profile/profileForm.dart';
 import 'dart:io';
+
+import 'package:provider/provider.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
 
@@ -49,6 +52,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           interests: selectedInterests,
           profileImage: profileImage
       );
+      await context.read<UserProvider>().loadUser();
+
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(

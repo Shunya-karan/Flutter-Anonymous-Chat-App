@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:frontend/core/network/socket_service.dart';
 import 'package:frontend/core/storage/shared_pref_service.dart';
+import 'package:frontend/providers/userprovider.dart';
 import 'package:frontend/screens/auth/login_screen.dart';
 import 'package:frontend/screens/home/homeScreen.dart';
+import 'package:provider/provider.dart';
 
 // import '../auth/login_screen.dart';
 // import '../home/home_screen.dart';
@@ -42,8 +44,9 @@ class _SplashScreenState extends State<SplashScreen> {
       );
       return;
     }
+    await context.read<UserProvider>().loadUser(); // Wait until profile is loaded
 
-      SocketService.instance.connect(token);
+    SocketService.instance.connect(token);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(

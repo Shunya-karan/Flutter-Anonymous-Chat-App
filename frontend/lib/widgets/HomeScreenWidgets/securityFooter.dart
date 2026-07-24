@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/core/theme/lightTheme.dart';
+import 'package:frontend/theme/lightTheme.dart';
 
 class Securityfooter extends StatelessWidget {
   const Securityfooter({super.key});

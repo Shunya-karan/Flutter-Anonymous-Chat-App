@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 import "package:frontend/core/network/socket_service.dart";
 import "package:frontend/core/storage/shared_pref_service.dart";
-import "package:frontend/core/theme/appColor.dart";
+import "package:frontend/theme/appColor.dart";
 import "package:frontend/core/utils/validator.dart";
 import "package:frontend/screens/auth/register_screen.dart";
 import "package:frontend/screens/home/homeScreen.dart";
@@ -10,7 +10,8 @@ import "package:frontend/widgets/CustomWidgets/customButton.dart";
 import "package:frontend/widgets/CustomWidgets/customTextfield.dart";
 import 'package:dio/dio.dart';
 import "package:frontend/widgets/HomeScreenWidgets/securityFooter.dart";
-
+import 'package:frontend/providers/userprovider.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -52,6 +53,8 @@ class _LoginScreenState extends State<LoginScreen> {
       final token=response.data["data"]["token"];
       await SharedPrefService.saveToken(token);
       SocketService.instance.connect(token);
+
+      await context.read<UserProvider>().loadUser();
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(

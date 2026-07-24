@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/core/theme/appColor.dart';
+import 'package:frontend/theme/appColor.dart';
 
 class OnlineUsersCard extends StatelessWidget {
   final int onlineUsers;

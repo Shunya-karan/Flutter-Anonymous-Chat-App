@@ -103,9 +103,7 @@ class AppDrawer extends StatelessWidget {
             Padding(
               padding:
               const EdgeInsets.symmetric(horizontal: 18),
-              child: LogoutButton(
-                onPressed: () {},
-              ),
+              child: LogoutButton(),
             ),
 
             const SizedBox(height: 25),

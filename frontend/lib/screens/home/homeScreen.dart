@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/network/socket_service.dart';
 import 'package:frontend/models/userModel.dart';
+import 'package:frontend/providers/userprovider.dart';
 import 'package:frontend/services/userServices.dart';
 import 'package:frontend/widgets/Menus/appDrawer.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/homecard.dart';
@@ -9,6 +10,7 @@ import 'package:frontend/widgets/HomeScreenWidgets/onlineUser.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/securityFooter.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/startChatButton.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/welcomHeader.dart';
+import 'package:provider/provider.dart';
 import '../chat/chat_screen.dart';
 
 class HomePage extends StatefulWidget {
@@ -24,17 +26,17 @@ class _HomePageState extends State<HomePage> {
 
   int onlineUsers = 0;
 
-  List<String> userInterests  = [];
+  // List<String> userInterests  = [];
   final socketService = SocketService.instance;
   bool  isSearching = false;
 
-  UserModel?user;
+  // UserModel?user;
   bool isLoading =true;
 
   @override
   void initState() {
     super.initState();
-    LoadProfile();
+    final user = context.read<UserProvider>().user;
     socketService.socket.off("matched");
     socketService.socket.on("matched", (roomId) {
       Navigator.push(
@@ -56,7 +58,7 @@ class _HomePageState extends State<HomePage> {
           });
           socketService.socket.emit("find_stranger",
               {
-            "interests": userInterests ,
+            "interests": user?.interests??[] ,
           });
         } else {
           setState(() {
@@ -75,9 +77,10 @@ class _HomePageState extends State<HomePage> {
 
 //Find Stranger function
   Future<void> _findStranger() async {
+    final user = context.read<UserProvider>().user;
     try {
       socketService.socket.emit("find_stranger", {
-        "interests": userInterests,
+        "interests": user?.interests??[] ,
       });
       setState(() {
         isSearching = true;
@@ -88,20 +91,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void>LoadProfile()async{
-    try{
-      final profile=await UserService.getProfile();
-      setState(() {
-        user = profile;
-        userInterests = profile.interests;
-        isLoading=false;
-      });
-    }catch(_){
-      setState(() {
-        isLoading=false;
-      });
-    }
-  }
 
   @override
   void dispose() {
@@ -113,10 +102,18 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<UserProvider>().user;
+    if (user == null) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
     return Scaffold(
-      endDrawer: AppDrawer(username: user?.username??"",
-      profileImage: user?.profileImage,
-        bio: user?.bio,
+      endDrawer: AppDrawer(username: user.username,
+      profileImage: user.profileImage,
+        bio: user.bio,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -124,14 +121,14 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              WelcomeHeader(username: user?.username??"",
-                profileImage: user?.profileImage,),
+              WelcomeHeader(username: user.username,
+                profileImage: user.profileImage,),
               SizedBox(height: 40,),
               OnlineUsersCard(onlineUsers: onlineUsers),
               SizedBox(height: 40,),
               HeroCard(isSearching: isSearching,),
               SizedBox(height: 40,),
-              InterestsCard(interests: user?.interests??[],),
+              InterestsCard(interests: user.interests,),
               SizedBox(height: 60,),
               StartChatButton(isSearching: isSearching,
                 status: status,

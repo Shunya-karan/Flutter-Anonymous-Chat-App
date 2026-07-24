@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/network/socket_service.dart';
 import 'package:frontend/core/storage/shared_pref_service.dart';
+import 'package:frontend/providers/userprovider.dart';
 import 'package:frontend/screens/auth/login_screen.dart';
+import 'package:provider/provider.dart';
 
 class LogoutButton extends StatelessWidget {
 
-  final VoidCallback onPressed;
 
   const LogoutButton({
     super.key,
-    required this.onPressed,
   });
 
   @override
@@ -17,6 +17,7 @@ class LogoutButton extends StatelessWidget {
     Future<void>Logout()async{
       await SharedPrefService.removeToken();
       SocketService.instance.disconnect();
+      context.read<UserProvider>().clearUser();
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (_)=>LoginScreen()

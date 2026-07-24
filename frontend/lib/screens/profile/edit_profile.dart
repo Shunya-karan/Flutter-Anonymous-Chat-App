@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/providers/userprovider.dart';
 import 'package:frontend/screens/home/homeScreen.dart';
 import 'package:frontend/services/userServices.dart';
 import 'package:frontend/widgets/CustomWidgets/customButton.dart';
@@ -7,6 +8,8 @@ import 'package:frontend/widgets/CustomWidgets/customeLoader.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/securityFooter.dart';
 import 'package:frontend/widgets/Profile/profileForm.dart';
 import 'dart:io';
+
+import 'package:provider/provider.dart';
 
 class EditProfileScreen extends StatefulWidget {
 
@@ -81,6 +84,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           profileImage: profileImage
       );
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Profile Updated")));
+      await context.read<UserProvider>().refreshUser();
       Navigator.pop(context);
 
     } on DioException catch (e) {
