@@ -76,6 +76,7 @@ class DarkTheme {
     ),
 
     textTheme: const TextTheme(
+
       headlineLarge: TextStyle(
         fontSize: 32,
         fontWeight: FontWeight.bold,
@@ -97,6 +98,30 @@ class DarkTheme {
         fontSize: 14,
         color: AppColors.darkSubtitle,
       ),
+
+      bodySmall: TextStyle(
+        fontSize: 12,
+        color: AppColors.darkSubtitle,
+      ),
+
+      titleLarge: TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.bold,
+        color: AppColors.darkText
+      ),
+
+      titleSmall: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.bold,
+        color: AppColors.darkText
+      ),
+
+      titleMedium: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        color: AppColors.darkText
+      ),
+
     ),
   );
 }

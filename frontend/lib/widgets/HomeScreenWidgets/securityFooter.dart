@@ -10,12 +10,11 @@ class Securityfooter extends StatelessWidget {
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
     return SizedBox(
-      width: double.infinity,
+      width: double.infinity-10,
       child: Card(
-        elevation: 0,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10)
-          ),
+        elevation: 1,
+          shape:Theme.of(context).cardTheme.shape,
+
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 18.0),
           child: Row(
@@ -24,19 +23,22 @@ class Securityfooter extends StatelessWidget {
               Icon(Icons.lock,size: 20,),
               SizedBox(width: 5),
               Text("Anonymous",
-                  style:LightTheme.theme.textTheme.bodySmall),
+                  style:Theme.of(context).textTheme.bodyMedium
+              ),
               SizedBox(width: 20,),
 
               Icon(Icons.bolt,size: 20),
               SizedBox(width: 5),
               Text("Fast Match",
-                  style:LightTheme.theme.textTheme.bodySmall),
+                  style:Theme.of(context).textTheme.bodyMedium
+              ),
               SizedBox(width: 20,),
 
               Icon(Icons.shield,size: 20),
               SizedBox(width: 5),
               Text("Secure",
-                  style:LightTheme.theme.textTheme.bodySmall),
+                  style:Theme.of(context).textTheme.bodyMedium
+              ),
               SizedBox(width: 20,),
             ],
           ),

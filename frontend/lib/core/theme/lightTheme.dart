@@ -83,6 +83,7 @@ class LightTheme {
     ),
 
     textTheme: const TextTheme(
+      // useMaterials3:true,
       headlineLarge: TextStyle(
         fontSize: 32,
         fontWeight: FontWeight.bold,
@@ -103,6 +104,26 @@ class LightTheme {
       bodyMedium: TextStyle(
         fontSize: 14,
         color: AppColors.lightSubtitle,
+      ),
+
+      bodySmall: TextStyle(
+        fontSize: 12,
+        color: AppColors.lightSubtitle,
+      ),
+
+      titleLarge: TextStyle(
+          fontSize: 22,
+          color: AppColors.lightText
+      ),
+
+      titleSmall: TextStyle(
+          fontSize: 14,
+          color: AppColors.lightText
+      ),
+
+      titleMedium: TextStyle(
+          fontSize: 16,
+          color: AppColors.lightText
       ),
     ),
   );

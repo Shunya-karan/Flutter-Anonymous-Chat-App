@@ -17,9 +17,12 @@ class WelcomeHeader extends StatelessWidget {
           children:[
             CircleAvatar(
             radius: 35,
-              backgroundImage:
-              profileImage !=null?NetworkImage(profileImage!):null,
-            child: profileImage==null?Icon(Icons.person):null,
+              backgroundImage: (profileImage?.isNotEmpty?? false)
+                  ? NetworkImage(profileImage!)
+                  : null,
+              child: (profileImage?.isEmpty?? false)
+                  ? const Icon(Icons.person)
+                  : null,
           ),
             Positioned(
               bottom: 2,

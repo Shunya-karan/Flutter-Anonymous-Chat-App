@@ -45,17 +45,11 @@ class ProfileHeader extends StatelessWidget {
                   backgroundColor: Colors.white,
                   child: CircleAvatar(
                     radius: 45,
-                    backgroundImage: profileImage != null
+                    backgroundImage: (profileImage?.isNotEmpty?? false)
                         ? NetworkImage(profileImage!)
                         : null,
-                    backgroundColor:
-                    colorScheme.primary.withOpacity(.15),
-                    child: profileImage == null
-                        ? Icon(
-                      Icons.person,
-                      size: 48,
-                      color: colorScheme.primary,
-                    )
+                    child: (profileImage?.isEmpty?? false)
+                        ? const Icon(Icons.person)
                         : null,
                   ),
                 ),

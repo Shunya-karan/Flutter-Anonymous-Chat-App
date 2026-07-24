@@ -44,16 +44,14 @@ class _ProfileImagePickerState
       children: [
         CircleAvatar(
           radius: 50,
-          backgroundColor: Colors.grey.shade200,
           backgroundImage: widget.image != null
               ? FileImage(widget.image!)
-              : widget.imageUrl != null
+              : (widget.imageUrl?.isNotEmpty??false)
               ? NetworkImage(widget.imageUrl!,)
               : null,
-          child: widget.image == null && widget.imageUrl==null
+        child: widget.image == null && !(widget.imageUrl?.isNotEmpty??false)
               ? const Icon(
             Icons.person,
-            size: 60,
           )
               : null,
         ),

@@ -77,7 +77,7 @@ class InterestsCard extends StatelessWidget {
                     .textTheme
                     .bodyMedium
                     ?.copyWith(
-                  color: Colors.grey,
+                  // color: Colors.grey,
                 ),
               ),
 

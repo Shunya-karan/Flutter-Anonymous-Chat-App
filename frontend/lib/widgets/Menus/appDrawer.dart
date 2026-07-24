@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/widgets/Dialog/appearance_dialog.dart';
 import 'package:frontend/widgets/logout_button.dart';
 import 'package:frontend/widgets/Menus/profile_header.dart';
 import 'package:frontend/widgets/Menus/setting_tile.dart';
@@ -32,12 +33,14 @@ class AppDrawer extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 20),
+            // profile header
             ProfileHeader(
               username: username,
               bio: bio,
               profileImage: profileImage,
             ),
             const SizedBox(height: 30),
+            // Setting Text
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Align(
@@ -54,6 +57,7 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
+            // All Functions
             Expanded(
               child: ListView(
                 padding:
@@ -66,9 +70,13 @@ class AppDrawer extends StatelessWidget {
                   ),
 
                   SettingsTile(
-                    icon: Icons.dark_mode_outlined,
+                    icon: Icons.palette_outlined,
                     title: "Appearance",
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.pop(context);
+                      showDialog(context: context, builder: (_)=>AppearanceDialog()
+                      );
+                    },
                   ),
 
                   SettingsTile(

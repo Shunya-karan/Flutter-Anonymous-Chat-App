@@ -13,11 +13,8 @@ class OnlineUsersCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 1,
-      color: AppColors.lightBackground,
-      shape: RoundedRectangleBorder(
-        borderRadius:
-        BorderRadius.circular(18),
-      ),
+      color: Theme.of(context).cardTheme.color,
+        shape: Theme.of(context).cardTheme.shape,
       child: Padding(
         padding:
         const EdgeInsets.all(18),
