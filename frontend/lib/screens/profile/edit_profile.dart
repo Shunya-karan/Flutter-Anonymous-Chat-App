@@ -32,9 +32,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void>loadProfile() async{
     try{
-      final profile= await UserService.getProfile();
+      final profile = context.read<UserProvider>().user;
+      if (profile == null) return;
       setState(() {
-        userNameController.text=profile.username;
+        userNameController.text=profile!.username;
         bioController.text=profile.bio??" ";
         selectedGender=profile.gender;
         selectedInterests=List<String>.from(
@@ -120,6 +121,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       );
     }
     return Scaffold(
+      appBar: AppBar(),
       body: SafeArea(child: SingleChildScrollView(
         padding: EdgeInsets.all(20),
         child: Column(

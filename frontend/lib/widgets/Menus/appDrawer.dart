@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/profile/profile_screen.dart';
 import 'package:frontend/widgets/Dialog/appearance_dialog.dart';
 import 'package:frontend/widgets/logout_button.dart';
 import 'package:frontend/widgets/Menus/profile_header.dart';
@@ -66,7 +67,11 @@ class AppDrawer extends StatelessWidget {
                   SettingsTile(
                     icon: Icons.person_outline,
                     title: "Profile",
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_)=>
+                        profileScreen()
+                      ));
+                    },
                   ),
 
                   SettingsTile(

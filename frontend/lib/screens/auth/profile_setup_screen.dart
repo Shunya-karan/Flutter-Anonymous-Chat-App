@@ -9,7 +9,7 @@ import 'package:frontend/widgets/Profile/profileForm.dart';
 import 'dart:io';
 
 import 'package:provider/provider.dart';
-
+//after registartion this screen will open for completing the profile
 class ProfileSetupScreen extends StatefulWidget {
 
   const ProfileSetupScreen({super.key});
