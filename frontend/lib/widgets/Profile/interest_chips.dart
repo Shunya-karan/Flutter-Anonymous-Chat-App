@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/widgets/CustomWidgets/interestIcon.dart';
 
 class InterestChips extends StatelessWidget {
   final List<String> interests;
@@ -27,7 +28,7 @@ class InterestChips extends StatelessWidget {
       children: interests.map((interest) {
         return Chip(
           avatar: Icon(
-            Icons.interests,
+            getInterestIcon(interest),
             size: 18,
             color: theme.colorScheme.primary,
           ),
