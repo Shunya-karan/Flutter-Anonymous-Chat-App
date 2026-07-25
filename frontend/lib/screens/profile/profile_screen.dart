@@ -20,40 +20,45 @@ class _profileScreenState extends State<profileScreen> {
   Widget build(BuildContext context) {
     final user = context.read<UserProvider>().user;
 
-    return Scaffold(
-      appBar: AppBar(),
-      body:  SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            children: [
-              ProfileHeader(username: user!.username,
-              bio: user.bio,
-              profileImage: user.profileImage,
-              ),
-              SizedBox(height: 24,),
-              ProfileDetails(gender: user.gender!, interest: user.interests),
-              SizedBox(height: 60,),
-              CustomButton(icon: Icons.edit, text: "Edit profile",
-                  onPressed: ()async{
-                await Navigator.push(context, MaterialPageRoute(builder: (_)=>EditProfileScreen()));
-                  }),
-              SizedBox(height: 20,),
-              CustomButton(icon: Icons.remove_circle,
-                  text: "Delete profile",
-                  colors: Colors.red,
-                  onPressed: ()async{
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                         backgroundColor: Theme.of(context).colorScheme.error,
-                        content: Text("This Feature Coming Soon"))
-                );
-                  }),
-            ],
+    return RefreshIndicator(
+      onRefresh: ()async{
+        await context.read<UserProvider>().refreshUser();
+      },
+      child: Scaffold(
+        appBar: AppBar(),
+        body:  SafeArea(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              children: [
+                ProfileHeader(username: user!.username,
+                bio: user.bio,
+                profileImage: user.profileImage,
+                ),
+                SizedBox(height: 24,),
+                ProfileDetails(gender: user.gender!, interest: user.interests),
+                SizedBox(height: 60,),
+                CustomButton(icon: Icons.edit, text: "Edit profile",
+                    onPressed: ()async{
+                  await Navigator.push(context, MaterialPageRoute(builder: (_)=>EditProfileScreen()));
+                    }),
+                SizedBox(height: 20,),
+                CustomButton(icon: Icons.remove_circle,
+                    text: "Delete profile",
+                    colors: Colors.red,
+                    onPressed: ()async{
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                           backgroundColor: Theme.of(context).colorScheme.error,
+                          content: Text("This Feature Coming Soon"))
+                  );
+                    }),
+              ],
+            ),
           ),
         ),
+        bottomNavigationBar: SafeArea(child: Securityfooter()),
       ),
-      bottomNavigationBar: SafeArea(child: Securityfooter()),
     );
 
   }
