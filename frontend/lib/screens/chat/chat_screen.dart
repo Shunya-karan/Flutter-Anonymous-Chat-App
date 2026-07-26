@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/chat/chatWidgets/chat_appbar.dart';
 import '../../core/network/socket_service.dart';
 import 'dart:async';
 
@@ -176,28 +177,12 @@ class _ChatScreenState extends State<ChatScreen> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: const Row(
-            children: [
-              CircleAvatar(
-                child: Icon(Icons.person),
-              ),
-              SizedBox(width: 10),
-              Text("Stranger"),
-            ],
-          ),
-          actions: [
-            TextButton.icon(
-              onPressed: () {
+        appBar: ChatAppbar(strangerName: "Stranger",
+            isOnline: true,
+            profileImage: null,
+            onSkip: (){
                 widget.socketService.socket.emit("skip_stranger");
-              },
-              icon: const Icon(Icons.skip_next),
-              label: const Text("Skip"),
-            ),
-            const SizedBox(width: 10),
-          ],
-        ),
+            }),
 
         body: SafeArea(
           child: Column(
