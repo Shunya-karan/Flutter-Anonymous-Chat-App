@@ -1,35 +1,51 @@
 const AppError = require("../errors/AppError.js");
-const User=require("../models/User");
-const { createAnonymousProfile,generateUniquedisplayName } = require("../services/anonymousServices.js");
+const User = require("../models/User");
+const { getAnonymousProfile,createAnonymousProfile, generateUniquedisplayName, updateAnonymousProfile } = require("../services/anonymousServices.js");
 
+
+const getAnonymousProfileController = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const profile = await getAnonymousProfile(userId)
+        return res.status(200).json({
+            success:true,
+            profile,
+
+        })
+    }catch(error){
+        next(error)
+    }
+    
+}
 //generateNanoymousName
-const generateAnonymousName = async (req, res,next) => {
-  try {
-    const displayName = await generateUniquedisplayName();
+const generateAnonymousName = async (req, res, next) => {
+    try {
+        const displayName = await generateUniquedisplayName();
 
-    return res.status(200).json({
-      success: true,
-      displayName,
-    });
-  } catch (error) {
-    next(error);
-  }
+        return res.status(200).json({
+            success: true,
+            displayName,
+        });
+    } catch (error) {
+        next(error);
+    }
 };
 
 //createAnonymousProfile
 
-const generateAnonymousProfile = async(req,res,next)=>{
-    try{
+const generateAnonymousProfile = async (req, res, next) => {
+    try {
         const userId = req.user.id;
-        const {displayName}=req.body;
+        const { displayName, avatar } = req.body;
 
-        if(!displayName){
-            throw new AppError("displayName is required",400);
+        if (!displayName || !avatar) {
+            throw new AppError("displayName and avatar is required", 400);
         }
 
         const anonymousProfile = await createAnonymousProfile(
             userId,
-            displayName
+            displayName,
+            avatar
         );
 
         await User.findByIdAndUpdate(userId, {
@@ -42,12 +58,33 @@ const generateAnonymousProfile = async(req,res,next)=>{
             anonymousProfile,
         });
 
-    }catch(error){
+    } catch (error) {
         next(error);
     }
 
 }
-module.exports={
+
+//updateAnonymousProfile
+const updateAnonymousProfileController = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const { displayName, avatar } = req.body;
+
+        const profile = await updateAnonymousProfile(userId, displayName, avatar);
+
+        return res.status(200).json({
+            success: true,
+            message: "Anonymous profile updated successfully.",
+            anonymousProfile: profile,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = {
+    getAnonymousProfileController,
     generateAnonymousName,
-    generateAnonymousProfile
+    generateAnonymousProfile,
+    updateAnonymousProfileController
 }
