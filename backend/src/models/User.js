@@ -45,6 +45,10 @@ const userSchema = new mongoose.Schema(
       enum: ["Male", "Female", "Other", "Prefer not to say"],
       default: "Prefer not to say",
     },
+    anonymousProfile:{
+      type:String,
+      unique:true
+    }
   },
   {
     timestamps: true,

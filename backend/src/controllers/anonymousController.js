@@ -1,5 +1,5 @@
 const AppError = require("../errors/AppError.js");
-const User=require("../models/User.js");
+const User=require("../models/User");
 const { createAnonymousProfile,generateUniquedisplayName } = require("../services/anonymousServices.js");
 
 //generateNanoymousName
