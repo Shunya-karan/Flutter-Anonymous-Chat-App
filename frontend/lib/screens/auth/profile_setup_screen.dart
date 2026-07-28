@@ -5,7 +5,7 @@ import 'package:frontend/screens/home/homeScreen.dart';
 import 'package:frontend/services/userServices.dart';
 import 'package:frontend/widgets/CustomWidgets/customButton.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/securityFooter.dart';
-import 'package:frontend/widgets/Profile/profileForm.dart';
+import 'package:frontend/widgets/ProfileWidgets/profileForm.dart';
 import 'dart:io';
 
 import 'package:provider/provider.dart';
@@ -90,7 +90,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              "Complete Your Profile",
+              "Complete Your ProfileWidgets",
               style: Theme.of(context)
                   .textTheme
                   .headlineMedium,

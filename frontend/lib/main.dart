@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/network/apiClient.dart';
 import 'package:frontend/providers/userprovider.dart';
+import 'package:frontend/screens/anonymous/anonymousProfileScreen.dart';
 import 'package:frontend/theme/darkTheme.dart';
 import 'package:frontend/theme/lightTheme.dart';
 import 'package:frontend/screens/auth/login_screen.dart';
@@ -41,7 +42,7 @@ class MyApp extends StatelessWidget {
       theme: LightTheme.theme,
       darkTheme: DarkTheme.theme,
       themeMode: themeProvider.themeMode,
-      home: const SplashScreen(),
+      home: const anonymousProfilescreen(),
     );
   }
 }

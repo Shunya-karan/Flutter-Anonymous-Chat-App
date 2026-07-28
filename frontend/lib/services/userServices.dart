@@ -2,13 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:frontend/core/constants/apiConstants.dart';
 import 'package:frontend/core/network/apiClient.dart';
 import 'dart:io';
-
 import 'package:frontend/models/userModel.dart';
 
 
 class UserService{
   UserService._();
 
+  //updateProfile
   static Future <Response>updateProfile({
     String? username,
     required String gender,
@@ -35,6 +35,7 @@ class UserService{
    return await ApiClient.dio.put(ApiConstants.updateProfile,data: formData);
   }
 
+    //getProfile
   static Future<UserModel> getProfile() async {
     final response = await ApiClient.dio.get(ApiConstants.me);
     if (response.data != null && response.data["data"] != null) {

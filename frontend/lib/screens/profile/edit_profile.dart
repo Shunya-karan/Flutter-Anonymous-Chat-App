@@ -6,7 +6,7 @@ import 'package:frontend/services/userServices.dart';
 import 'package:frontend/widgets/CustomWidgets/customButton.dart';
 import 'package:frontend/widgets/CustomWidgets/customeLoader.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/securityFooter.dart';
-import 'package:frontend/widgets/Profile/profileForm.dart';
+import 'package:frontend/widgets/ProfileWidgets/profileForm.dart';
 import 'dart:io';
 
 import 'package:provider/provider.dart';
@@ -84,7 +84,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           interests: selectedInterests,
           profileImage: profileImage
       );
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Profile Updated")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("ProfileWidgets Updated")));
       await context.read<UserProvider>().refreshUser();
       Navigator.pop(context);
 
@@ -128,7 +128,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              "Update Your Profile",
+              "Update Your ProfileWidgets",
               style: Theme.of(context)
                   .textTheme
                   .headlineMedium,

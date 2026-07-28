@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/widgets/Profile/interest_chips.dart';
+import 'package:frontend/widgets/ProfileWidgets/interest_chips.dart';
 
 class ProfileDetails extends StatelessWidget {
   final String gender;

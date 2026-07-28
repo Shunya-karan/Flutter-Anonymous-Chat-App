@@ -64,16 +64,16 @@ class AppDrawer extends StatelessWidget {
                 padding:
                 const EdgeInsets.symmetric(horizontal: 8),
                 children: [
+                  //All Settings
                   SettingsTile(
                     icon: Icons.person_outline,
-                    title: "Profile",
+                    title: "ProfileWidgets",
                     onTap: () {
                       Navigator.push(context, MaterialPageRoute(builder: (_)=>
                         profileScreen()
                       ));
                     },
                   ),
-
                   SettingsTile(
                     icon: Icons.palette_outlined,
                     title: "Appearance",
@@ -104,7 +104,7 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 15),
-
+            //Logout Button
             Padding(
               padding:
               const EdgeInsets.symmetric(horizontal: 18),

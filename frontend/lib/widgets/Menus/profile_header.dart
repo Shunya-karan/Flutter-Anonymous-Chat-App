@@ -108,7 +108,7 @@ class ProfileHeader extends StatelessWidget {
                     builder: (_)=> EditProfileScreen()));
                 },
                 icon: const Icon(Icons.edit),
-                label: const Text("Edit Profile"),
+                label: const Text("Edit ProfileWidgets"),
                 style: FilledButton.styleFrom(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),

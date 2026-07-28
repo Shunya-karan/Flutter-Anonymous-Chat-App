@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/widgets/CustomWidgets/customTextfield.dart';
-import 'package:frontend/widgets/Profile/InterestSelecter.dart';
-import 'package:frontend/widgets/Profile/genderselecter.dart';
+import 'package:frontend/widgets/ProfileWidgets/InterestSelecter.dart';
+import 'package:frontend/widgets/ProfileWidgets/genderselecter.dart';
 import 'dart:io';
 
-import 'package:frontend/widgets/Profile/profile_image_picker.dart';
+import 'package:frontend/widgets/ProfileWidgets/profile_image_picker.dart';
 
 class ProfileForm extends StatelessWidget {
   final File? profileImage;
@@ -87,7 +87,7 @@ class ProfileForm extends StatelessWidget {
                   onImageSelected: onImageSelected,
                 ),
                 const SizedBox(height: 10),
-                Text("Upload Profile Picture",
+                Text("Upload ProfileWidgets Picture",
                   style: Theme.of(context).textTheme.bodyMedium),
               ],
             ),

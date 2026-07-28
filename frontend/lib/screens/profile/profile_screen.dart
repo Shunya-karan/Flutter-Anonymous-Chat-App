@@ -3,8 +3,8 @@ import 'package:frontend/providers/userprovider.dart';
 import 'package:frontend/screens/profile/edit_profile.dart';
 import 'package:frontend/widgets/CustomWidgets/customButton.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/securityFooter.dart';
-import 'package:frontend/widgets/Profile/profileHeader.dart';
-import 'package:frontend/widgets/Profile/profile_details_card.dart';
+import 'package:frontend/widgets/ProfileWidgets/profileHeader.dart';
+import 'package:frontend/widgets/ProfileWidgets/profile_details_card.dart';
 import 'package:provider/provider.dart';
 
 
