@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/providers/userprovider.dart';
+import 'package:frontend/screens/anonymous/anonymousProfileScreen.dart';
 import 'package:frontend/screens/home/homeScreen.dart';
 import 'package:frontend/services/userServices.dart';
 import 'package:frontend/widgets/CustomWidgets/customButton.dart';
@@ -84,7 +85,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           interests: selectedInterests,
           profileImage: profileImage
       );
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("ProfileWidgets Updated")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Profile Updated")));
       await context.read<UserProvider>().refreshUser();
       Navigator.pop(context);
 
@@ -128,7 +129,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              "Update Your ProfileWidgets",
+              "Update Your Profile",
               style: Theme.of(context)
                   .textTheme
                   .headlineMedium,
@@ -168,6 +169,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             const SizedBox(height: 15),
             //Continue Button
             const SizedBox(height: 30),
+            ElevatedButton(onPressed: (){
+              Navigator.push(context, MaterialPageRoute(
+                  builder: (context)=>AnonymousProfileScreen())
+              );
+            }, child: Text("Update Anonymous Prodile")),
+            const SizedBox(height: 15),
+
             CustomButton(
               text: isLoading?"Uploading profile..":"Save Changes",
               isLoading: isLoading,

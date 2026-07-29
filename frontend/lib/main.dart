@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
       theme: LightTheme.theme,
       darkTheme: DarkTheme.theme,
       themeMode: themeProvider.themeMode,
-      home: const anonymousProfilescreen(),
+      home: const SplashScreen(),
     );
   }
 }
