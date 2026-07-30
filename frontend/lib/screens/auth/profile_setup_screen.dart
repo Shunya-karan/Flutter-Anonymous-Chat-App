@@ -4,6 +4,7 @@ import 'package:frontend/providers/userprovider.dart';
 import 'package:frontend/screens/anonymous/anonymousProfileScreen.dart';
 import 'package:frontend/screens/home/homeScreen.dart';
 import 'package:frontend/services/userServices.dart';
+import 'package:frontend/widgets/CustomWidgets/CustomeMessanger.dart';
 import 'package:frontend/widgets/CustomWidgets/customButton.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/securityFooter.dart';
 import 'package:frontend/widgets/ProfileWidgets/profileForm.dart';
@@ -28,19 +29,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   Future<void> continueProfile() async{
     if (selectedGender == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please select your gender"),
-        ),
-      );
+      CustomMessenger.show(context, message: "Please select your gender");
       return;
     }
     if (selectedInterests.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please select at least one interest"),
-        ),
-      );
+      CustomMessenger.show(context, message: "Please select at least one interest");
       return;
     }
     try{
@@ -64,10 +57,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       );
 
     } on DioException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.response?.data["message"]
-              ?? e.message ?? "Something went wrong")
-          ));}
+      CustomMessenger.show(context, message: e.response?.data["message"]
+          ?? e.message.toString() ?? "Something went wrong");
+    }
     finally{
             if(mounted){
               setState(() {
@@ -97,7 +89,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   .headlineMedium,
             ),
             const SizedBox(height: 8),
-
             Text(
               "Almost done! Personalize your account.",
               style: Theme.of(context).textTheme.bodyMedium,

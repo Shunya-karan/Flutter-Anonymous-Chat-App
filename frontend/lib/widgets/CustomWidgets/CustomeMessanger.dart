@@ -10,6 +10,11 @@ class CustomMessenger {
       SnackBar(
         content: Text(message),
         backgroundColor: bgColor,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
       ),
     );
   }

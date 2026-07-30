@@ -6,6 +6,7 @@ import "package:frontend/core/utils/validator.dart";
 import "package:frontend/screens/auth/register_screen.dart";
 import "package:frontend/screens/home/homeScreen.dart";
 import "package:frontend/services/authServices.dart";
+import "package:frontend/widgets/CustomWidgets/CustomeMessanger.dart";
 import "package:frontend/widgets/CustomWidgets/customButton.dart";
 import "package:frontend/widgets/CustomWidgets/customTextfield.dart";
 import 'package:dio/dio.dart';
@@ -64,27 +65,9 @@ class _LoginScreenState extends State<LoginScreen> {
     } on DioException catch (e) {
       final message = e.response?.data["message"] ??
           "Something went wrong";
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.error,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 3),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-    );
+      CustomMessenger.show(context, message: message,bgColor: AppColors.error);
   }catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: const Text("An unexpected error occurred."),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 3),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
+      CustomMessenger.show(context, message: e.toString(),bgColor: AppColors.error);
     }finally{
       if(mounted){
         setState(() {

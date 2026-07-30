@@ -6,6 +6,7 @@ import 'package:frontend/screens/anonymous/anonymousWidgets/saveButton.dart';
 import 'package:frontend/screens/home/homeScreen.dart';
 import 'package:frontend/services/anonymousService.dart';
 import 'package:frontend/theme/appColor.dart';
+import 'package:frontend/widgets/CustomWidgets/CustomeMessanger.dart';
 
 class AnonymousProfileScreen extends StatefulWidget {
   const AnonymousProfileScreen({super.key});
@@ -23,9 +24,7 @@ class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
 
   Future<void>saveProfile()async{
     if(selectedAvatar==null||displayName==""){
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Please Select Avatar or Generate Name"))
-      );
+      CustomMessenger.show(context, message:"Please Select Avatar or Generate Name");
       return;
     }
     try{
@@ -36,9 +35,7 @@ class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
           displayName: displayName,
           avatar: selectedAvatar!);
       if(!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(
-        "Profile Created Successfully"
-      )));
+      CustomMessenger.show(context, message:"Profile Created Successfully",bgColor: Colors.greenAccent);
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
@@ -49,8 +46,7 @@ class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
     }on DioException catch(e){
       final message =e.response?.data["message"]??"Something Went Wrong";
       if(!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message,)
-      ));
+      CustomMessenger.show(context, message: message);
     }finally{
       if(mounted){
         setState(() {
@@ -59,6 +55,7 @@ class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
       }
     }
   }
+
   @override
   void initState(){
     super.initState();
@@ -86,6 +83,7 @@ class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Welcome Text
                   Text(
                     "Create Your Identity",
                     style: theme.textTheme.headlineMedium?.copyWith(
@@ -104,6 +102,7 @@ class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
                   ),
 
                   SizedBox(height: size.height * 0.04),
+                  // Selected Avatar
 
                   Center(
                     child: AnimatedContainer(
@@ -143,7 +142,7 @@ class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
                   ),
 
                   SizedBox(height: size.height * 0.04),
-
+                  // Avatar selecting
                   Card(
                     elevation: 2,
                     shadowColor: Colors.black.withOpacity(0.08),
@@ -164,7 +163,7 @@ class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
                   ),
 
                   const SizedBox(height: 18),
-
+                  // NAme generator
                   Card(
                     elevation: 2,
                     shadowColor: Colors.black.withOpacity(0.08),
@@ -185,7 +184,7 @@ class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
                   ),
 
                   SizedBox(height: size.height * 0.04),
-
+                  // Save Button
                   SaveButton(
                     onPressed: saveProfile,
                     isLoading: isSaving,

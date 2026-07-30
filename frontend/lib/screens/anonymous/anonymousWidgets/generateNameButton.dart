@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/services/anonymousService.dart';
 import 'package:frontend/theme/appColor.dart';
+import 'package:frontend/widgets/CustomWidgets/CustomeMessanger.dart';
 import 'package:frontend/widgets/CustomWidgets/customeLoader.dart';
 
 class Generatenamebutton extends StatefulWidget {
@@ -30,16 +31,7 @@ class _GeneratenamebuttonState extends State<Generatenamebutton> {
     } on DioException catch (e) {
       final message = e.response?.data["message"] ??
           "Something went wrong";
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.error,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 3),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-      );
+      CustomMessenger.show(context, message: message,bgColor: AppColors.error);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

@@ -6,6 +6,7 @@ import "package:frontend/theme/appColor.dart";
 import "package:frontend/core/utils/validator.dart";
 import "package:frontend/screens/auth/profile_setup_screen.dart";
 import "package:frontend/services/authServices.dart";
+import "package:frontend/widgets/CustomWidgets/CustomeMessanger.dart";
 import "package:frontend/widgets/CustomWidgets/customButton.dart";
 import "package:frontend/widgets/CustomWidgets/customTextfield.dart";
 import "package:frontend/widgets/HomeScreenWidgets/securityFooter.dart";
@@ -41,9 +42,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
     if(!_formKey.currentState!.validate()) return;
     if(passwordController.text.trim()!=confirmPasswordController.text.trim()){
-      ScaffoldMessenger.of(context).
-      showSnackBar(SnackBar(content: Text("Password Should be same"))
-      );
+      CustomMessenger.show(context, message: "Password Should be same");
       return;
     }
     try{
@@ -71,10 +70,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final message =
           e.response?.data["message"] ??
               "Something went wrong";
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      CustomMessenger.show(context, message: message,bgColor: AppColors.error);
     } finally {
       if (mounted) {
         setState(() {
