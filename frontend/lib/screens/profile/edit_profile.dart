@@ -4,6 +4,7 @@ import 'package:frontend/providers/userprovider.dart';
 import 'package:frontend/screens/anonymous/anonymousProfileScreen.dart';
 import 'package:frontend/screens/home/homeScreen.dart';
 import 'package:frontend/services/userServices.dart';
+import 'package:frontend/widgets/CustomWidgets/CustomeMessanger.dart';
 import 'package:frontend/widgets/CustomWidgets/customButton.dart';
 import 'package:frontend/widgets/CustomWidgets/customeLoader.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/securityFooter.dart';
@@ -85,8 +86,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           interests: selectedInterests,
           profileImage: profileImage
       );
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Profile Updated")));
+      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Profile Updated")));
+      CustomMessenger.show(context,
+          message: "Profile Updated",
+          bgColor: Colors.greenAccent
+      );
       await context.read<UserProvider>().refreshUser();
+
       Navigator.pop(context);
 
     } on DioException catch (e) {
@@ -177,8 +183,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             const SizedBox(height: 15),
 
             CustomButton(
-              text: isLoading?"Uploading profile..":"Save Changes",
-              isLoading: isLoading,
+              text: isLoading?"Uploading profile..":"Next Step...",
               onPressed: isLoading ? null : EditProfile,
             ),
           ],

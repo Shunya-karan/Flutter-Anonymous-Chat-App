@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 
-class CustomeMessanger extends StatelessWidget {
-  final String message;
-  const CustomeMessanger({super.key,
-          required this.message
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ScaffoldMessenger(child: SnackBar(content: Text(message)));
+class CustomMessenger {
+  static void show(
+      BuildContext context, {
+        required String message,
+        Color bgColor = Colors.black,
+      }) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: bgColor,
+      ),
+    );
   }
 }
