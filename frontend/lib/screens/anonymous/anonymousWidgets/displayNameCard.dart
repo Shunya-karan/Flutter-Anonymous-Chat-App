@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/anonymous/anonymousWidgets/generateNameButton.dart';
 
 class DisplayNameCard extends StatelessWidget {
   final String displayName;
-  final VoidCallback onGenerate;
-  const DisplayNameCard({super.key,
-  required this.displayName,
-    required this.onGenerate
+  final ValueChanged<String> onGenerateName;
+
+  const DisplayNameCard({
+    super.key,
+    required this.displayName,
+    required this.onGenerateName,
   });
 
   @override
@@ -32,13 +35,7 @@ class DisplayNameCard extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20,),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-               onPressed: onGenerate,
-              icon: const Icon(Icons.casino),
-              label: const Text("Generate New Name"),
-          ),)
+            Generatenamebutton(onGenerateName: onGenerateName)
         ],
       ),
       ),

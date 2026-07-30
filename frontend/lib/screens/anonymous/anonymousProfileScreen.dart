@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/anonymous/anonymousWidgets/avatarGrid.dart';
 import 'package:frontend/screens/anonymous/anonymousWidgets/displayNameCard.dart';
+import 'package:frontend/screens/anonymous/anonymousWidgets/saveButton.dart';
+import 'package:frontend/screens/home/homeScreen.dart';
 import 'package:frontend/services/anonymousService.dart';
 import 'package:frontend/theme/appColor.dart';
 
@@ -14,74 +16,65 @@ class AnonymousProfileScreen extends StatefulWidget {
 }
 
 class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
-  String? selectedAvatar;
   String displayName = "";
-  bool isGenerating = false;
+  String? selectedAvatar;
+  bool isSaving = false;
 
 
-  Future<void> generateName()async{
+  Future<void>saveProfile()async{
+    if(selectedAvatar==null||displayName==""){
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Please Select Avatar or Generate Name"))
+      );
+      return;
+    }
     try{
       setState(() {
-        isGenerating=true;
+        isSaving=true;
       });
-      final response = await AnonymousService.generateAnonymousName();
-      setState(() {
-        displayName=response.data["displayName"];
-      });
-    }on DioException catch (e) {
-      final message = e.response?.data["message"] ??
-          "Something went wrong";
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.error,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 3),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+      await AnonymousService.createAnonymousProfile(
+          displayName: displayName,
+          avatar: selectedAvatar!);
+      if(!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(
+        "Profile Created Successfully"
+      )));
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const HomePage(),
         ),
-      ),
+            (route) => false,
       );
-    }catch (e) {
-      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      //   content: const Text("${e}"),
-      //   backgroundColor: Colors.red,
-      //   behavior: SnackBarBehavior.floating,
-      //   duration: const Duration(seconds: 3),
-      //   shape: RoundedRectangleBorder(
-      //     borderRadius: BorderRadius.circular(12),
-      //   ),
-      // ),
-      // );
-      print(e);
+    }on DioException catch(e){
+      final message =e.response?.data["message"]??"Something Went Wrong";
+      if(!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message,)
+      ));
     }finally{
       if(mounted){
         setState(() {
-          isGenerating=false;
+          isSaving=false;
         });
       }
     }
   }
-
   @override
   void initState(){
     super.initState();
-    generateName();
   }
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Anonymous Profile"),
-        centerTitle: true,
-      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Welcome Text
               Text(
                 "Create Your Identity",
                 style: theme.textTheme.headlineSmall?.copyWith(
@@ -89,7 +82,7 @@ class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-
+              // About anonymousScreen Text
               Text(
                 "Choose an avatar and Generate anonymous name "
                     "to represent you while chatting. Your real identity stays private.",
@@ -100,6 +93,7 @@ class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
 
               const SizedBox(height: 30),
 
+              // Selected Avatar
               Center(
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 250),
@@ -130,6 +124,7 @@ class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
 
               const SizedBox(height: 30),
 
+              // Select Avatar Card
               Card(
                 elevation: 2,
                 shape: RoundedRectangleBorder(
@@ -150,18 +145,18 @@ class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
 
               const SizedBox(height: 15),
 
+              // DisplayNAme CArd
               DisplayNameCard(displayName: displayName,
-                  onGenerate: generateName),
+              onGenerateName: (name){
+                setState(() {
+                  displayName=name;
+                });
+              },
+              ),
 
               const SizedBox(height: 30),
 
-              SizedBox(
-                height: 54,
-                child: FilledButton(
-                  onPressed: selectedAvatar == null ? null : () {},
-                  child: const Text("Continue"),
-                ),
-              ),
+              SaveButton(onPressed: saveProfile, isLoading: isSaving)
             ],
           ),
         ),

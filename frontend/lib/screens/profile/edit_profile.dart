@@ -168,12 +168,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
             const SizedBox(height: 15),
             //Continue Button
-            const SizedBox(height: 30),
-            ElevatedButton(onPressed: (){
-              Navigator.push(context, MaterialPageRoute(
-                  builder: (context)=>AnonymousProfileScreen())
-              );
-            }, child: Text("Update Anonymous Prodile")),
+            // const SizedBox(height: 30),
+            // ElevatedButton(onPressed: (){
+            //   Navigator.push(context, MaterialPageRoute(
+            //       builder: (context)=>AnonymousProfileScreen())
+            //   );
+            // }, child: Text("Update Anonymous Prodile")),
             const SizedBox(height: 15),
 
             CustomButton(

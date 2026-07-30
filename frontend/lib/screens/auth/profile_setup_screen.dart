@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/providers/userprovider.dart';
+import 'package:frontend/screens/anonymous/anonymousProfileScreen.dart';
 import 'package:frontend/screens/home/homeScreen.dart';
 import 'package:frontend/services/userServices.dart';
 import 'package:frontend/widgets/CustomWidgets/customButton.dart';
@@ -57,7 +58,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-          builder: (_) => const HomePage(),
+          builder: (_) => const AnonymousProfileScreen(),
         ),
             (route) => false,
       );
