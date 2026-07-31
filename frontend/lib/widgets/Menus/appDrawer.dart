@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/anonymous/anonymousProfileScreen.dart';
 import 'package:frontend/screens/profile/profile_screen.dart';
 import 'package:frontend/widgets/Dialog/appearance_dialog.dart';
 import 'package:frontend/widgets/logout_button.dart';
@@ -64,7 +65,7 @@ class AppDrawer extends StatelessWidget {
                 padding:
                 const EdgeInsets.symmetric(horizontal: 8),
                 children: [
-                  //All Settings
+                  // Profile
                   SettingsTile(
                     icon: Icons.person_outline,
                     title: "Profile",
@@ -74,6 +75,17 @@ class AppDrawer extends StatelessWidget {
                       ));
                     },
                   ),
+                  // Anonymous Profile
+                  SettingsTile(
+                    icon: Icons.person_pin_outlined,
+                    title: "Anonymous Profile",
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_)=>
+                          AnonymousProfileScreen(isEdit: true,)
+                      ));
+                    },
+                  ),
+                  // Appearance
                   SettingsTile(
                     icon: Icons.palette_outlined,
                     title: "Appearance",
@@ -83,18 +95,19 @@ class AppDrawer extends StatelessWidget {
                       );
                     },
                   ),
-
+                  // Privacy Policy
                   SettingsTile(
                     icon: Icons.privacy_tip_outlined,
                     title: "Privacy Policy",
                     onTap: () {},
                   ),
-
+                  //About
                   SettingsTile(
                     icon: Icons.info_outline,
                     title: "About TalkLoop",
                     onTap: () {},
                   ),
+                  // Taring
                   SettingsTile(
                     icon: Icons.star_border_outlined,
                     title: "Rate App",

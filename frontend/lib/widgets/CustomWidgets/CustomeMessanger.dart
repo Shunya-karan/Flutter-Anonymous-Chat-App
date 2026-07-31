@@ -8,7 +8,9 @@ class CustomMessenger {
       }) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(message,style: TextStyle(
+          fontWeight: FontWeight.w600
+        ),),
         backgroundColor: bgColor,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 3),

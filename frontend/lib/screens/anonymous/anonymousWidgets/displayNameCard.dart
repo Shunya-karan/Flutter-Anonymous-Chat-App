@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/anonymous/anonymousWidgets/generateNameButton.dart';
+import 'package:frontend/widgets/CustomWidgets/customButton.dart';
 
 class DisplayNameCard extends StatelessWidget {
   final String displayName;
-  final ValueChanged<String> onGenerateName;
+  final VoidCallback onGenerateName;
 
   const DisplayNameCard({
     super.key,
@@ -35,7 +35,7 @@ class DisplayNameCard extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20,),
-            Generatenamebutton(onGenerateName: onGenerateName)
+            CustomButton(text: "GenerateName", onPressed: onGenerateName)
         ],
       ),
       ),

@@ -5,9 +5,11 @@ import 'package:frontend/widgets/CustomWidgets/customeLoader.dart';
 class SaveButton extends StatelessWidget {
   final VoidCallback onPressed;
   final bool isLoading;
+  final String buttonText;
   const SaveButton({super.key,
     required this.onPressed,
-    required this.isLoading
+    required this.isLoading,
+    required this.buttonText
   });
 
   @override
@@ -19,7 +21,7 @@ class SaveButton extends StatelessWidget {
           child: isLoading
               ?SizedBox(
             width: 20,height: 20,child: CustomLoader(),
-          ):Text("Save Profile")
+          ):Text(buttonText)
       ),
     );
   }

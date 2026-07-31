@@ -14,7 +14,7 @@ class StartChatButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.secondary;
+    final secondary = Theme.of(context).colorScheme.secondary;
 
     return SizedBox(
       width: double.infinity,
@@ -22,7 +22,7 @@ class StartChatButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isSearching ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: primary,
+          backgroundColor: secondary,
           foregroundColor: Colors.white,
           elevation: 10,
           shape: RoundedRectangleBorder(

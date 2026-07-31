@@ -7,9 +7,13 @@ import 'package:frontend/screens/home/homeScreen.dart';
 import 'package:frontend/services/anonymousService.dart';
 import 'package:frontend/theme/appColor.dart';
 import 'package:frontend/widgets/CustomWidgets/CustomeMessanger.dart';
+import 'package:frontend/widgets/HomeScreenWidgets/securityFooter.dart';
 
 class AnonymousProfileScreen extends StatefulWidget {
-  const AnonymousProfileScreen({super.key});
+  final bool isEdit;
+   AnonymousProfileScreen({super.key,
+  this.isEdit=false
+  });
 
   @override
   State<AnonymousProfileScreen> createState() =>
@@ -21,28 +25,44 @@ class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
   String? selectedAvatar;
   bool isSaving = false;
 
-
+  // saveProfile
   Future<void>saveProfile()async{
-    if(selectedAvatar==null||displayName==""){
+    if (isSaving) return;
+    if(selectedAvatar==null||displayName.trim().isEmpty){
       CustomMessenger.show(context, message:"Please Select Avatar or Generate Name");
       return;
     }
+    setState(() {
+      isSaving=true;
+    });
     try{
-      setState(() {
-        isSaving=true;
-      });
-      await AnonymousService.createAnonymousProfile(
-          displayName: displayName,
-          avatar: selectedAvatar!);
+      if(widget.isEdit){
+        await AnonymousService.updateAnonymousProfile(
+            displayName: displayName,
+            avatar: selectedAvatar!);
+      }else{
+        await AnonymousService.createAnonymousProfile(
+            displayName: displayName,
+            avatar: selectedAvatar!);
+      }
+
       if(!mounted) return;
-      CustomMessenger.show(context, message:"Profile Created Successfully",bgColor: Colors.greenAccent);
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const HomePage(),
-        ),
-            (route) => false,
+      CustomMessenger.show(context,
+          message:widget.isEdit?"Profile Updated Successfully":"Profile Created Successfully",
+          bgColor: Theme.of(context).colorScheme.secondary
       );
+      if(widget.isEdit){
+        Navigator.pop(context);
+      }else{
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const HomePage(),
+          ),
+              (route) => false,
+        );
+      }
+
     }on DioException catch(e){
       final message =e.response?.data["message"]??"Something Went Wrong";
       if(!mounted) return;
@@ -55,10 +75,57 @@ class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
       }
     }
   }
+  // loadAnonymousProfile
+
+  Future<void>loadAnonymousProfile()async{
+    try{
+      final profile=await AnonymousService.getAnonymousProfile();
+      setState(() {
+        displayName=profile.displayName;
+        selectedAvatar=profile.avatar;
+      });
+    }on DioException catch(e) {
+      if(e.response?.statusCode==404){
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (_)=>AnonymousProfileScreen(isEdit: false)));
+      }
+      final message = e.response?.data["message"] ?? "Something Went Wrong";
+      if (!mounted) return;
+      CustomMessenger.show(context, message: message);
+    }catch(e){
+      CustomMessenger.show(context, message: e.toString());
+    }
+  }
+
+  Future<void> generateName()async {
+    try {
+      final response = await AnonymousService.generateAnonymousName();
+      setState(() {
+        displayName = response.data["displayName"];
+      });
+    } on DioException catch (e) {
+      final message = e.response?.data["message"] ??
+          "Something went wrong";
+      CustomMessenger.show(context, message: message,
+          bgColor: AppColors.error);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
+  }
 
   @override
   void initState(){
     super.initState();
+    if(widget.isEdit){
+      loadAnonymousProfile();
+    }else{
+      generateName();
+    }
   }
   @override
   Widget build(BuildContext context) {
@@ -71,6 +138,9 @@ class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
         : size.width * 0.28;
 
     return Scaffold(
+      appBar: widget.isEdit?AppBar(
+
+      ):null,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
@@ -85,7 +155,9 @@ class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
                 children: [
                   // Welcome Text
                   Text(
-                    "Create Your Identity",
+                    widget.isEdit
+                        ?"Update Your Identity"
+                        :"Create Your Identity",
                     style: theme.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -174,11 +246,7 @@ class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
                       padding: const EdgeInsets.all(20),
                       child: DisplayNameCard(
                         displayName: displayName,
-                        onGenerateName: (name) {
-                          setState(() {
-                            displayName = name;
-                          });
-                        },
+                        onGenerateName: generateName,
                       ),
                     ),
                   ),
@@ -188,6 +256,9 @@ class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
                   SaveButton(
                     onPressed: saveProfile,
                     isLoading: isSaving,
+                    buttonText: widget.isEdit
+                    ?"Save Changes "
+                    :"Save Profile",
                   ),
 
                   const SizedBox(height: 20),
@@ -197,6 +268,7 @@ class _AnonymousProfileScreenState extends State<AnonymousProfileScreen> {
           ),
         ),
       ),
+      bottomNavigationBar: SafeArea(child: Securityfooter()),
     );
   }
 }

@@ -179,11 +179,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             //   Navigator.push(context, MaterialPageRoute(
             //       builder: (context)=>AnonymousProfileScreen())
             //   );
-            // }, child: Text("Update Anonymous Prodile")),
+            // }, child: Text("Update Anonymous Profile")),
             const SizedBox(height: 15),
 
             CustomButton(
-              text: isLoading?"Uploading profile..":"Next Step...",
+              text: isLoading?"Uploading profile..":"Update Profile",
               onPressed: isLoading ? null : EditProfile,
             ),
           ],

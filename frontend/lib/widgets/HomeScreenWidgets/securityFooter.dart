@@ -8,15 +8,13 @@ class Securityfooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
     return SizedBox(
       width: double.infinity-10,
       child: Card(
-        elevation: 1,
-          shape:Theme.of(context).cardTheme.shape,
-
+        // elevation: 1,
+          clipBehavior:Theme.of(context).cardTheme.clipBehavior,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 18.0),
+          padding: const EdgeInsets.symmetric(vertical: 15.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [

@@ -13,36 +13,8 @@ class WelcomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Stack(
-          children:[
-            CircleAvatar(
-            radius: 35,
-              backgroundImage: (profileImage?.isNotEmpty?? false)
-                  ? NetworkImage(profileImage!)
-                  : null,
-              child: (profileImage?.isEmpty?? false)
-                  ? const Icon(Icons.person)
-                  : null,
-          ),
-            Positioned(
-              bottom: 2,
-              right: 2,
-              child: Container(
-                height: 16,
-                width: 16,
-                decoration: BoxDecoration(
-                  color: Colors.green,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white,
-                    width: 2,
-                  ),
-                ),
-              ),
-            ),
-          ]
-        ),
-        SizedBox(width: 15),
+        Image.asset("assets/images/LOGO.png",height: 80,width: 90,),
+        SizedBox(width: 5),
         Expanded(child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -57,7 +29,7 @@ class WelcomeHeader extends StatelessWidget {
               username,
               style: Theme.of(context)
                   .textTheme
-                  .titleLarge,
+                  .titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
           ],
         )),
@@ -67,7 +39,7 @@ class WelcomeHeader extends StatelessWidget {
           child: Builder(
             builder: (context) {
               return IconButton(
-                icon: const Icon(Icons.menu),
+                icon: const Icon(Icons.more_vert),
                 onPressed: () {
                   Scaffold.of(context).openEndDrawer();
                 },

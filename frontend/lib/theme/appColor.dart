@@ -15,11 +15,11 @@ class AppColors {
   static const Color lightBorder = Color(0xFFE5E7EB);
 
   // Dark Theme
-  static const Color darkBackground = Color(0xFF0F172A);
-  static const Color darkSurface = Color(0xFF1E293B);
+  static const Color darkBackground = Color(0xFF000000);
+  static const Color darkSurface = Color(0xFF2A2D39);
   static const Color darkText = Color(0xFFFFFFFF);
   static const Color darkSubtitle = Color(0xFF94A3B8);
-  static const Color darkBorder = Color(0xFF334155);
+  static const Color darkBorder = Color(0xFF1A3C63);
 
   // Common
   static const Color success = Color(0xFF22C55E);

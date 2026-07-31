@@ -51,7 +51,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-          builder: (_) => const AnonymousProfileScreen(),
+          builder: (_) =>  AnonymousProfileScreen(),
         ),
             (route) => false,
       );

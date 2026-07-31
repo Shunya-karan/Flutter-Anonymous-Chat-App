@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/network/apiClient.dart';
 import 'package:frontend/providers/userprovider.dart';
-import 'package:frontend/screens/anonymous/anonymousProfileScreen.dart';
 import 'package:frontend/theme/darkTheme.dart';
 import 'package:frontend/theme/lightTheme.dart';
-import 'package:frontend/screens/auth/login_screen.dart';
-import 'package:frontend/screens/auth/profile_setup_screen.dart';
-import 'package:frontend/screens/auth/register_screen.dart';
 import 'package:frontend/screens/splash/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/providers/themeprovider.dart';
@@ -20,7 +16,11 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => ThemeProvider(),
+          create: (_){
+            final provider=ThemeProvider();
+            provider.LoadTheme();
+            return provider;
+          },
         ),
         ChangeNotifierProvider(
           create: (_) => UserProvider(),
