@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/chat/chatWidgets/chat_appbar.dart';
+import 'package:frontend/screens/chat/chatWidgets/chat_bubble.dart';
 import '../../core/network/socket_service.dart';
 import 'dart:async';
 
@@ -206,41 +207,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   itemBuilder: (context, index) {
                     final msg = messages[index];
                     final isMe = msg["sender"] == myId;
-          
-                    return Align(
-                      alignment: isMe
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(
-                          vertical: 4,
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
-                        ),
-                        constraints: BoxConstraints(
-                          maxWidth:
-                          MediaQuery
-                              .of(context)
-                              .size
-                              .width * 0.75,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isMe
-                              ? Colors.blue
-                              : Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          msg["message"],
-                          style: TextStyle(
-                            color: isMe
-                                ? Colors.white
-                                : Colors.black87,
-                          ),
-                        ),
-                      ),
+                    return ChatBubble(
+                      message: msg["message"],
+                      isMe: isMe,
                     );
                   },
                 ),

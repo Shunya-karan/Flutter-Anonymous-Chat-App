@@ -28,10 +28,10 @@ module.exports = (io) => {
     socket.on("find_stranger", async (data) => {
       const interests = data?.interests || [];
 
-      const anonymousProfile =await AnonymousProfile.findOne({
+      const currentUserProfile =await AnonymousProfile.findOne({
         user:socket.user.id,
       }).select("displayName avatar -_id");
-      
+
       // If someone waiting
       if (waitingUsers.length > 0) {
         const partnerIndex = waitingUsers.findIndex(
@@ -52,6 +52,8 @@ module.exports = (io) => {
           addToQueue(socket, interests,anonymousProfile);
           return;
         }
+        const partnerProfile = partnerData.anonymousProfile;
+
         const partner = partnerData.socket;
         const roomId = `${socket.id}-${partner.id}-${Date.now()}`;
         partners[socket.id] = partner.id;
@@ -63,16 +65,16 @@ module.exports = (io) => {
 
         socket.emit("matched", {
         roomId,
-        stranger:partnerData.anonymousProfile
+        stranger:partnerProfile
         });
 
         partner.emit("matched", {
         roomId,
-        stranger:anonymousProfile
+        stranger:currentUserProfile
         })
     }else{
         // Add current user to waiting list
-        addToQueue(socket, interests ,anonymousProfile);
+        addToQueue(socket, interests ,currentUserProfile);
       }
     });
 
