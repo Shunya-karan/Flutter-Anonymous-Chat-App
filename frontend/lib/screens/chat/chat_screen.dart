@@ -6,11 +6,15 @@ import 'dart:async';
 class ChatScreen extends StatefulWidget {
   final SocketService socketService;
   final String roomId;
+  final String strangerName;
+  final String strangerAvatar;
 
   const ChatScreen({
     super.key,
     required this.socketService,
     required this.roomId,
+    required this.strangerAvatar,
+    required this.strangerName
   });
 
   @override
@@ -59,7 +63,6 @@ class _ChatScreenState extends State<ChatScreen> {
       searchAgain();
     };
     widget.socketService.socket.on("stranger_disconnected", disconnectListener);
-
     // SKIP SUCCESS
     skipListener = (_) {
       searchAgain();
@@ -143,6 +146,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
+    // if user disconnected or skipeed then it will deletee this things
     typingTimer?.cancel();
     widget.socketService.socket.off(
       "receive_message",
@@ -177,9 +181,9 @@ class _ChatScreenState extends State<ChatScreen> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        appBar: ChatAppbar(strangerName: "Stranger",
+        appBar: ChatAppbar(strangerName:widget.strangerName,
             isOnline: true,
-            profileImage: null,
+            strangerAvatar: widget.strangerAvatar,
             onSkip: (){
                 widget.socketService.socket.emit("skip_stranger");
             }),

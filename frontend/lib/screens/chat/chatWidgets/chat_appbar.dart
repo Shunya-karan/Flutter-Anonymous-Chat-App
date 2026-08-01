@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-class ChatAppbar extends StatelessWidget implements PreferredSizeWidget{
+class ChatAppbar extends StatelessWidget implements PreferredSizeWidget {
   final String strangerName;
-  final String? profileImage;
+  final String? strangerAvatar;
   final bool isOnline;
   final VoidCallback onSkip;
 
   const ChatAppbar({
     super.key,
     required this.strangerName,
-    this.profileImage,
+    this.strangerAvatar,
     required this.isOnline,
     required this.onSkip,
   });
@@ -19,68 +19,106 @@ class ChatAppbar extends StatelessWidget implements PreferredSizeWidget{
 
   @override
   Widget build(BuildContext context) {
-    final hashIamge = profileImage?.isNotEmpty??false;
+    final theme = Theme.of(context);
+    final hasImage = strangerAvatar?.isNotEmpty ?? false;
+
     return AppBar(
       automaticallyImplyLeading: false,
-      titleSpacing: 1,
-        title: Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: Row(
-           children: [
-             // SizedBox(width: 5,),
-             //profileImage
-             CircleAvatar(
-               radius: 22,
-               backgroundImage: hashIamge?NetworkImage(profileImage!):null,
-               child: !hashIamge
-               ?Icon(Icons.person_outlined):null,
-             ),
-             SizedBox(width: 12,),
-             //Name
-             Expanded(
-                 child: Column(
-                   crossAxisAlignment: CrossAxisAlignment.start,
-                   mainAxisAlignment: MainAxisAlignment.center,
-                   children: [
-                     Text(strangerName,
-                       maxLines: 1,
-                     overflow: TextOverflow.ellipsis,
-                       style: Theme.of(context).textTheme.titleMedium,
-                     ),
-                     SizedBox(height: 2,),
-                     Row(
-                       children: [
-                         Container(
-                           width: 8,
-                           height: 8,
-                           decoration: BoxDecoration(
-                             color: isOnline
-                                 ? Colors.green
-                                 : Colors.red,
-                             shape: BoxShape.circle,
-                           ),
-                         ),
+      elevation: 0,
+      titleSpacing: 8,
+      title: Row(
+        children: [
+          Stack(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: theme.colorScheme.primary.withOpacity(0.25),
+                    width: 2,
+                  ),
+                ),
+                child: CircleAvatar(
+                  radius: 23,
+                  backgroundColor: theme.colorScheme.primaryContainer,
+                  backgroundImage: hasImage
+                      ? AssetImage("assets/avatar/$strangerAvatar.png")
+                      : null,
+                  child: !hasImage
+                      ? Icon(
+                    Icons.person_rounded,
+                    color: theme.colorScheme.primary,
+                  )
+                      : null,
+                ),
+              ),
 
-                         const SizedBox(width: 6),
+              Positioned(
+                right: 2,
+                bottom: 2,
+                child: Container(
+                  width: 13,
+                  height: 13,
+                  decoration: BoxDecoration(
+                    color: isOnline ? Colors.green : Colors.red,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: theme.colorScheme.surface,
+                      width: 2,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
 
-                         Text(
-                           isOnline ? "Online" : "Offline",
-                           style: Theme.of(context)
-                               .textTheme
-                               .bodySmall,
-                         ),
-                       ],
-                     ),
-                   ],
-                 )
-             ),
-           ],
+          const SizedBox(width: 14),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  strangerName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+
+                const SizedBox(height: 3),
+
+                Text(
+                  isOnline ? "Online" : "Offline",
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: isOnline
+                        ? Colors.green
+                        : theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 12),
+          child: FilledButton.tonalIcon(
+            onPressed: onSkip,
+            icon: const Icon(Icons.skip_next_rounded),
+            label: const Text("Skip"),
+            style: FilledButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
           ),
         ),
-      actions: [
-        TextButton.icon(onPressed: onSkip,
-            icon: Icon(Icons.skip_next),
-            label: Text("Skip"))
       ],
     );
   }

@@ -1,3 +1,5 @@
+const  AnonymousProfile = require("../models/anonymousProfile");
+
 module.exports = (io) => {
 
   const partners = {};
@@ -5,7 +7,7 @@ module.exports = (io) => {
   let onlineUsers = 0;
   const userRooms = {};
 
-  function addToQueue(socket, interests) {
+  function addToQueue(socket, interests,anonymousProfile) {
     waitingUsers = waitingUsers.filter(
       user => user.socket.id !== socket.id
     );
@@ -13,6 +15,7 @@ module.exports = (io) => {
     waitingUsers.push({
       socket,
       interests,
+      anonymousProfile
     });
   }
 
@@ -22,8 +25,13 @@ module.exports = (io) => {
     io.emit("online_count", onlineUsers);
 
     // FIND STRANGER
-    socket.on("find_stranger", (data) => {
+    socket.on("find_stranger", async (data) => {
       const interests = data?.interests || [];
+
+      const anonymousProfile =await AnonymousProfile.findOne({
+        user:socket.user.id,
+      }).select("displayName avatar -_id");
+      
       // If someone waiting
       if (waitingUsers.length > 0) {
         const partnerIndex = waitingUsers.findIndex(
@@ -37,11 +45,11 @@ module.exports = (io) => {
           partnerData =
             waitingUsers.splice(partnerIndex, 1)[0];
         } else {
-          addToQueue(socket, interests);
+          addToQueue(socket, interests,anonymousProfile);
           return;
         }
         if (!partnerData) {
-          addToQueue(socket, interests);
+          addToQueue(socket, interests,anonymousProfile);
           return;
         }
         const partner = partnerData.socket;
@@ -52,16 +60,24 @@ module.exports = (io) => {
         userRooms[partner.id] = roomId;
         socket.join(roomId);
         partner.join(roomId);
-        socket.emit("matched", roomId);
-        partner.emit("matched", roomId);
-      } else {
+
+        socket.emit("matched", {
+        roomId,
+        stranger:partnerData.anonymousProfile
+        });
+
+        partner.emit("matched", {
+        roomId,
+        stranger:anonymousProfile
+        })
+    }else{
         // Add current user to waiting list
-        addToQueue(socket, interests);
+        addToQueue(socket, interests ,anonymousProfile);
       }
     });
 
-    // SEND MESSAGE
-    socket.on("send_message", (data) => {
+       // SEND MESSAGE
+      socket.on("send_message", (data) => {
       io.to(data.roomId).emit("receive_message", {
         sender: socket.id,
         message: data.message,
@@ -132,6 +148,5 @@ module.exports = (io) => {
     });
 
   }
-  );
 
-}
+    )}

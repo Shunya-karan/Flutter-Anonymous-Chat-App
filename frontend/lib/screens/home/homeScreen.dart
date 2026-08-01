@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/network/socket_service.dart';
-import 'package:frontend/models/userModel.dart';
 import 'package:frontend/providers/userprovider.dart';
-import 'package:frontend/services/userServices.dart';
 import 'package:frontend/widgets/Menus/appDrawer.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/homecard.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/interestSection.dart';
@@ -36,9 +34,26 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    matchStranger();
+    onlineCount();
+  }
+
+  Future<void>onlineCount()async{
+     socketService.socket.on("online_count", (count) {
+      setState(() {
+        onlineUsers = count;
+      });
+    });
+  }
+  Future<void>matchStranger()async{
     final user = context.read<UserProvider>().user;
     socketService.socket.off("matched");
-    socketService.socket.on("matched", (roomId) {
+    socketService.socket.on("matched", (data) {
+      final roomId = data["roomId"];
+      final stranger = data["stranger"];
+
+      final strangerName = stranger["displayName"];
+      final strangerAvatar = stranger["avatar"];
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -46,6 +61,8 @@ class _HomePageState extends State<HomePage> {
               ChatScreen(
                 socketService: socketService,
                 roomId: roomId,
+                strangerName: strangerName,
+                strangerAvatar: strangerAvatar,
               ),
         ),
       ).then((result) {
@@ -58,19 +75,14 @@ class _HomePageState extends State<HomePage> {
           });
           socketService.socket.emit("find_stranger",
               {
-            "interests": user?.interests??[] ,
-          });
+                "interests": user?.interests??[] ,
+              });
         } else {
           setState(() {
             isSearching=false;
             status = "Tap below to meet someone new";
           });
         }
-      });
-    });
-    socketService.socket.on("online_count", (count) {
-      setState(() {
-        onlineUsers = count;
       });
     });
   }
@@ -121,8 +133,7 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              WelcomeHeader(username: user.username,
-                profileImage: user.profileImage,),
+              WelcomeHeader(username: user.username),
               SizedBox(height: 40,),
               OnlineUsersCard(onlineUsers: onlineUsers),
               SizedBox(height: 40,),
