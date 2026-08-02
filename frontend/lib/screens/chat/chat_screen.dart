@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/chat/chatWidgets/chat_appbar.dart';
 import 'package:frontend/screens/chat/chatWidgets/chat_bubble.dart';
+import 'package:frontend/screens/chat/chatWidgets/chat_input_bar.dart';
+import 'package:frontend/screens/chat/chatWidgets/empty_chat_view.dart';
+import 'package:frontend/screens/chat/chatWidgets/typing_indicator.dart';
+import 'package:frontend/widgets/CustomWidgets/CustomeMessanger.dart';
 import '../../core/network/socket_service.dart';
 import 'dart:async';
 
@@ -53,6 +57,7 @@ class _ChatScreenState extends State<ChatScreen> {
         messages.add({
           "sender": data["sender"],
           "message": data["message"],
+          "sentAt":data["sentAt"]
         });
       });
       _scrollToBottom();
@@ -66,17 +71,19 @@ class _ChatScreenState extends State<ChatScreen> {
     widget.socketService.socket.on("stranger_disconnected", disconnectListener);
     // SKIP SUCCESS
     skipListener = (_) {
-      searchAgain();
+      Navigator.pop(context);
     };
     widget.socketService.socket.on("skip_success", skipListener);
 
     // USER TYPING
-    typingListener = (_) {
-      if (!mounted) return;
-      setState(() {
-        strangerTyping = true;
-      });
-    };
+
+      typingListener = (_) {
+        if (strangerTyping) return;
+        setState(() {
+          strangerTyping = true;
+        });
+        _scrollToBottom();
+      };
     widget.socketService.socket.on("user_typing", typingListener);
 
     // USER STOP TYPING
@@ -87,62 +94,6 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     };
     widget.socketService.socket.on("user_stop_typing", stopTypingListener);
-  }
-
-  void _scrollToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (scrollController.hasClients) {
-        scrollController.animateTo(
-          scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOut,
-        );
-      }
-    });
-  }
-
-  void searchAgain() {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text("Finding a new stranger..."),
-        duration: const Duration(seconds: 1),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: const Color(0xFFAEA3C6),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-    if (isSearchingAgain) return;
-    isSearchingAgain = true;
-    Future.delayed(
-      const Duration(seconds: 1),
-          () {
-        if (!mounted) return;
-        Navigator.pop(context, true);
-      },
-    );
-  }
-
-  void sendMessage() {
-    if (messageController.text
-        .trim()
-        .isEmpty) {
-      return;
-    }
-    widget.socketService.socket.emit(
-      "send_message",
-      {
-        "roomId": widget.roomId,
-        "message": messageController.text,
-      },
-    );
-
-    widget.socketService.socket.emit(
-      "stop_typing",
-      widget.roomId,
-    );
-
-    messageController.clear();
   }
 
   @override
@@ -182,112 +133,113 @@ class _ChatScreenState extends State<ChatScreen> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        appBar: ChatAppbar(strangerName:widget.strangerName,
+        appBar: ChatAppbar(strangerName: widget.strangerName,
             isOnline: true,
             strangerAvatar: widget.strangerAvatar,
-            onSkip: (){
-                widget.socketService.socket.emit("skip_stranger");
+            onSkip: () {
+              widget.socketService.socket.emit("skip_stranger");
             }),
 
         body: SafeArea(
           child: Column(
             children: [
-              Expanded(
-                child: messages.isEmpty
-                    ? const Center(
-                  child: Text(
-                    "You are connected.\nSay hello ",
-                    textAlign: TextAlign.center,
-                  ),
-                )
-                    : ListView.builder(
-                  controller: scrollController,
-                  padding: const EdgeInsets.all(12),
-                  itemCount: messages.length,
-                  itemBuilder: (context, index) {
-                    final msg = messages[index];
-                    final isMe = msg["sender"] == myId;
-                    return ChatBubble(
-                      message: msg["message"],
-                      isMe: isMe,
-                    );
-                  },
-                ),
+              //empty chatView
+              Expanded(child: messages.isEmpty
+              ?EmptyChatView()
+              : ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.all(12),
+              itemCount:  messages.length,
+              itemBuilder: (context, index) {
+
+                final msg = messages[index];
+                final isMe = msg["sender"] == myId;
+                return ChatBubble(
+                  message: msg["message"],
+                  isMe: isMe,
+                  sentAt: msg["sentAt"],
+                );
+                },
               ),
-          
+              ),
               if (strangerTyping)
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: 16,
-                    bottom: 8,
-                  ),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Text(
-                        "Typing...",
-                      ),
-                    ),
-                  ),
-                ),
-          
-              Container(
-                padding: const EdgeInsets.all(10),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: messageController,
-                        decoration: InputDecoration(
-                          hintText: "Type a message",
-                          border: OutlineInputBorder(
-                            borderRadius:
-                            BorderRadius.circular(25),
-                          ),
-                        ),
-                        onChanged: (value) {
-                          widget.socketService.socket
-                              .emit("typing", widget.roomId);
-          
-                          typingTimer?.cancel();
-          
-                          typingTimer = Timer(
-                            const Duration(seconds: 1),
-                                () {
-                              widget.socketService.socket.emit(
-                                "stop_typing",
-                                widget.roomId,
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ),
-          
-                    const SizedBox(width: 8),
-          
-                    CircleAvatar(
-                      radius: 24,
-                      child: IconButton(
-                        icon: const Icon(Icons.send),
-                        onPressed: sendMessage,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+                TypingIndicator(strangerName: widget.strangerName),
+                //inputbar
+              ChatInputBar(
+                controller: messageController,
+                onTyping: handleTyping,
+                onSend: (message) {
+                  sendMessage(message);
+                },
+              )
             ],
           ),
         ),
       ),
     );
   }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scrollController.hasClients) {
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  void searchAgain() {
+    if (!mounted) return;
+    CustomMessenger.show(context,
+        bgColor: Colors.green,
+        message: "Finding a new stranger...");
+
+    if (isSearchingAgain) return;
+    isSearchingAgain = true;
+    Future.delayed(
+      const Duration(seconds: 1),
+          () {
+        if (!mounted) return;
+        Navigator.pop(context, true);
+      },
+    );
+  }
+
+  void sendMessage(String message) {
+    widget.socketService.socket.emit(
+      "send_message",
+      {
+        "roomId": widget.roomId,
+        "message": message,
+      },
+    );
+    messageController.clear();
+    widget.socketService.socket.emit(
+      "stop_typing",
+      widget.roomId,
+    );
+  }
+
+  void handleTyping() {
+    widget.socketService.socket.emit(
+        "typing",
+        widget.roomId
+    );
+    typingTimer?.cancel();
+
+    typingTimer = Timer(
+      const Duration(seconds: 1),
+          () {
+        widget.socketService.socket.emit(
+          "stop_typing",
+          widget.roomId,
+        );
+      },
+    );
+  }
 }
+
+

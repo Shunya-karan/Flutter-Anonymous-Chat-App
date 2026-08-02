@@ -83,6 +83,7 @@ module.exports = (io) => {
       io.to(data.roomId).emit("receive_message", {
         sender: socket.id,
         message: data.message,
+        sentAt: Date.now(),
       });
 
     });
