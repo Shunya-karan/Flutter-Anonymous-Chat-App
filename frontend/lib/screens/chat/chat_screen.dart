@@ -6,6 +6,7 @@ import 'package:frontend/screens/chat/chatWidgets/connection_banner.dart';
 import 'package:frontend/screens/chat/chatWidgets/empty_chat_view.dart';
 import 'package:frontend/screens/chat/chatWidgets/typing_indicator.dart';
 import 'package:frontend/widgets/CustomWidgets/CustomeMessanger.dart';
+import 'package:frontend/widgets/Dialogs/end_chat_dialog.dart';
 import '../../core/network/socket_service.dart';
 import 'dart:async';
 
@@ -39,13 +40,15 @@ class _ChatScreenState extends State<ChatScreen> {
   bool isSearchingAgain = false;
   String? bannerMessage;
   Color bannerColor = Colors.green;
-
+  bool isEndingChat = false;
 
   late Function(dynamic) receiveMessageListener;
   late Function(dynamic) typingListener;
   late Function(dynamic) stopTypingListener;
   late Function(dynamic) skipListener;
   late Function(dynamic) disconnectListener;
+  late Function(dynamic) strangerChatEndedListener;
+  late Function(dynamic) endChatSuccessListener;
 
 
   @override
@@ -63,6 +66,7 @@ class _ChatScreenState extends State<ChatScreen> {
         hideAfter: const Duration(seconds: 2),
       );
     });
+    //receiving messages
     receiveMessageListener = (data) {
       if (!mounted) return;
       setState(() {
@@ -86,6 +90,7 @@ class _ChatScreenState extends State<ChatScreen> {
       searchAgain();
     };
     widget.socketService.socket.on("stranger_disconnected", disconnectListener);
+
     // SKIP SUCCESS
     skipListener = (_) {
       showBanner(
@@ -97,9 +102,29 @@ class _ChatScreenState extends State<ChatScreen> {
     };
     widget.socketService.socket.on("skip_success", skipListener);
 
-    // USER TYPING
+    //user ended chat
+    endChatSuccessListener=(_){
+      if(!mounted) return;
+      Navigator.pop(context);
+      CustomMessenger.show(context, message: "Chat ended.",bgColor: Colors.green);
+      isEndingChat = false;
+    };
 
-      typingListener = (_) {
+    widget.socketService.socket.on("chat_ended", endChatSuccessListener);
+
+    // if Stranger Ended chat
+    strangerChatEndedListener=(_){
+      showBanner(
+        "Stranger ended the chat. Finding another stranger...",
+        Colors.orangeAccent,
+        hideAfter: const Duration(seconds: 2),
+      );
+      searchAgain();
+    };
+    widget.socketService.socket.on("stranger_ended_chat", strangerChatEndedListener);
+
+    // USER TYPING
+    typingListener = (_) {
         if (strangerTyping) return;
         setState(() {
           strangerTyping = true;
@@ -141,7 +166,14 @@ class _ChatScreenState extends State<ChatScreen> {
       "skip_success",
       skipListener,
     );
-
+    widget.socketService.socket.off(
+      "chat_ended",
+      endChatSuccessListener,
+    );
+    widget.socketService.socket.off(
+      "stranger_ended_chat",
+      strangerChatEndedListener,
+    );
     widget.socketService.socket.off(
       "stranger_disconnected",
       disconnectListener,
@@ -153,6 +185,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return PopScope(
       canPop: false,
       child: Scaffold(
@@ -161,7 +194,11 @@ class _ChatScreenState extends State<ChatScreen> {
             strangerAvatar: widget.strangerAvatar,
             onSkip: () {
               widget.socketService.socket.emit("skip_stranger");
-            }),
+            },
+            onEndChat: endChat,
+            onBlock: (){},
+            onReport: (){},
+            ),
 
         body: SafeArea(
           child: Column(
@@ -217,6 +254,18 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  Future<void> endChat() async {
+    final shouldEnd = await showDialog<bool>(
+      context: context,
+      builder: (_) => const EndChatDialog(),
+    );
+
+    if (shouldEnd != true) return;
+    if (isEndingChat) return;
+    isEndingChat = true;
+    widget.socketService.socket.emit("end_chat");
+  }
+
   void searchAgain() {
     if (!mounted) return;
 
@@ -264,9 +313,9 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void showBanner(String message, Color color,
-      {
-        Duration? hideAfter}) {
+  void showBanner(String message,
+      Color color,
+      {Duration? hideAfter}) {
     if (!mounted) return;
 
     setState(() {
@@ -283,6 +332,7 @@ class _ChatScreenState extends State<ChatScreen> {
       });
   }
   }
+
 }
 
 

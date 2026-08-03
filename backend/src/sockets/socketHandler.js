@@ -19,6 +19,29 @@ module.exports = (io) => {
     });
   }
 
+  function endCurrentChat(socket) {
+    const partnerId = partners[socket.id];
+
+    if (!partnerId) return null;
+
+    const roomId = userRooms[socket.id];
+
+    socket.leave(roomId);
+
+    const partnerSocket = io.sockets.sockets.get(partnerId);
+
+    if (partnerSocket) {
+      partnerSocket.leave(roomId);
+    }
+
+    delete partners[socket.id];
+    delete partners[partnerId];
+    delete userRooms[socket.id];
+    delete userRooms[partnerId];
+
+    return { partnerId };
+  }
+
   io.on("connection", (socket) => {
 
     onlineUsers++;
@@ -79,7 +102,7 @@ module.exports = (io) => {
     });
 
        // SEND MESSAGE
-      socket.on("send_message", (data) => {
+    socket.on("send_message", (data) => {
       io.to(data.roomId).emit("receive_message", {
         sender: socket.id,
         message: data.message,
@@ -114,33 +137,37 @@ module.exports = (io) => {
 
     //Skip Stranger
     socket.on("skip_stranger", () => {
-      const partnerId = partners[socket.id];
-      if (partnerId) {
-        const roomId = userRooms[socket.id];
-        socket.leave(roomId);
+      const result = endCurrentChat(socket);
 
-        const partnerSocket = io.sockets.sockets.get(partnerId);
+      if (!result) return;
 
-        if (partnerSocket) {
-          partnerSocket.leave(roomId);
-        }
+      const { partnerId } = result;
 
-        io.to(partnerId).emit("stranger_disconnected");
-        // Notify the user who clicked skip
-        socket.emit("skip_success");
-        waitingUsers = waitingUsers.filter(
-          user => user.socket.id !== socket.id
-        );
-        waitingUsers = waitingUsers.filter(
-          user => user.socket.id !== partnerId
-        );
-        delete partners[socket.id];
-        delete partners[partnerId];
-        delete userRooms[socket.id];
-        delete userRooms[partnerId];
-      }
+      io.to(partnerId).emit("stranger_disconnected");
+      socket.emit("skip_success");
 
+      waitingUsers = waitingUsers.filter(
+        user => user.socket.id !== socket.id
+      );
+
+      waitingUsers = waitingUsers.filter(
+        user => user.socket.id !== partnerId
+      );
     });
+
+    //end chat
+    socket.on("end_chat", () => {
+      const result = endCurrentChat(socket);
+
+      if (!result) return;
+
+      const { partnerId } = result;
+
+      io.to(partnerId).emit("stranger_ended_chat");
+
+      socket.emit("chat_ended");
+    });
+
 
     socket.on("typing", (roomId) => {
       socket.to(roomId).emit("user_typing");

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/chat/chatWidgets/chat_menu.dart';
 
 class ChatAppbar extends StatelessWidget implements PreferredSizeWidget {
   final String strangerName;
   final String? strangerAvatar;
   final bool isOnline;
   final VoidCallback onSkip;
+  final VoidCallback onEndChat;
+  final VoidCallback onReport;
+  final VoidCallback onBlock;
 
   const ChatAppbar({
     super.key,
@@ -12,6 +16,9 @@ class ChatAppbar extends StatelessWidget implements PreferredSizeWidget {
     this.strangerAvatar,
     required this.isOnline,
     required this.onSkip,
+    required this.onEndChat,
+    required this.onReport,
+    required this.onBlock,
   });
 
   @override
@@ -105,19 +112,10 @@ class ChatAppbar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
-        Padding(
-          padding: const EdgeInsets.only(right: 12),
-          child: FilledButton.tonalIcon(
-            onPressed: onSkip,
-            icon: const Icon(Icons.skip_next_rounded),
-            label: const Text("Skip"),
-            style: FilledButton.styleFrom(
-              visualDensity: VisualDensity.compact,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
+        ChatMenu(onSkip: onSkip,
+            onEndChat: onEndChat,
+            onReport: onReport,
+            onBlock: onBlock
         ),
       ],
     );
