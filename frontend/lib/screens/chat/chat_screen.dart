@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/screens/chat/chatWidgets/chat_appbar.dart';
 import 'package:frontend/screens/chat/chatWidgets/chat_bubble.dart';
 import 'package:frontend/screens/chat/chatWidgets/chat_input_bar.dart';
+import 'package:frontend/screens/chat/chatWidgets/connection_banner.dart';
 import 'package:frontend/screens/chat/chatWidgets/empty_chat_view.dart';
 import 'package:frontend/screens/chat/chatWidgets/typing_indicator.dart';
 import 'package:frontend/widgets/CustomWidgets/CustomeMessanger.dart';
@@ -34,7 +35,12 @@ class _ChatScreenState extends State<ChatScreen> {
   String myId = "";
   bool strangerTyping = false;
   Timer? typingTimer;
+  Timer? bannerTimer;
   bool isSearchingAgain = false;
+  String? bannerMessage;
+  Color bannerColor = Colors.green;
+
+
   late Function(dynamic) receiveMessageListener;
   late Function(dynamic) typingListener;
   late Function(dynamic) stopTypingListener;
@@ -50,7 +56,13 @@ class _ChatScreenState extends State<ChatScreen> {
     widget.socketService.socket.off("stranger_disconnected");
 
     myId = widget.socketService.socket.id!;
-
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showBanner(
+        "Connected",
+        Colors.green,
+        hideAfter: const Duration(seconds: 2),
+      );
+    });
     receiveMessageListener = (data) {
       if (!mounted) return;
       setState(() {
@@ -66,12 +78,22 @@ class _ChatScreenState extends State<ChatScreen> {
 
     // STRANGER DISCONNECTED
     disconnectListener = (_) {
+      showBanner(
+        "Stranger left. Finding another stranger...",
+        Colors.orange,
+        hideAfter: const Duration(seconds: 2),
+      );
       searchAgain();
     };
     widget.socketService.socket.on("stranger_disconnected", disconnectListener);
     // SKIP SUCCESS
     skipListener = (_) {
-      Navigator.pop(context);
+      showBanner(
+        "Finding another  stranger...",
+        Colors.blue,
+        hideAfter: const Duration(seconds: 2),
+      );
+      searchAgain();
     };
     widget.socketService.socket.on("skip_success", skipListener);
 
@@ -100,6 +122,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void dispose() {
     // if user disconnected or skipeed then it will deletee this things
     typingTimer?.cancel();
+    bannerTimer?.cancel();
     widget.socketService.socket.off(
       "receive_message",
       receiveMessageListener,
@@ -143,6 +166,9 @@ class _ChatScreenState extends State<ChatScreen> {
         body: SafeArea(
           child: Column(
             children: [
+              if(bannerMessage!=null)
+                ConnectionBanner(message: bannerMessage!,
+                    color: bannerColor),
               //empty chatView
               Expanded(child: messages.isEmpty
               ?EmptyChatView()
@@ -193,9 +219,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void searchAgain() {
     if (!mounted) return;
-    CustomMessenger.show(context,
-        bgColor: Colors.green,
-        message: "Finding a new stranger...");
 
     if (isSearchingAgain) return;
     isSearchingAgain = true;
@@ -239,6 +262,26 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       },
     );
+  }
+
+  void showBanner(String message, Color color,
+      {
+        Duration? hideAfter}) {
+    if (!mounted) return;
+
+    setState(() {
+      bannerMessage = message;
+      bannerColor = color;
+    });
+    if (hideAfter != null) {
+      bannerTimer?.cancel();
+      bannerTimer=Timer(hideAfter, () {
+        if(!mounted)return;
+        setState(() {
+          bannerMessage = null;
+        });
+      });
+  }
   }
 }
 
