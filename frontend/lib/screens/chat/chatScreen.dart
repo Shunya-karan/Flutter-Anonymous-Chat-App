@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/chat/chatWidgets/chat_appbar.dart';
-import 'package:frontend/screens/chat/chatWidgets/chat_bubble.dart';
-import 'package:frontend/screens/chat/chatWidgets/chat_input_bar.dart';
-import 'package:frontend/screens/chat/chatWidgets/connection_banner.dart';
-import 'package:frontend/screens/chat/chatWidgets/empty_chat_view.dart';
-import 'package:frontend/screens/chat/chatWidgets/typing_indicator.dart';
+import 'package:frontend/screens/chat/chatWidgets/chatAppbar.dart';
+import 'package:frontend/screens/chat/chatWidgets/chatBubble.dart';
+import 'package:frontend/screens/chat/chatWidgets/chatInputBar.dart';
+import 'package:frontend/screens/chat/chatWidgets/connectionBanner.dart';
+import 'package:frontend/screens/chat/chatWidgets/emptyChatView.dart';
+import 'package:frontend/screens/chat/chatWidgets/typingIndicator.dart';
 import 'package:frontend/widgets/CustomWidgets/CustomeMessanger.dart';
-import 'package:frontend/widgets/Dialogs/end_chat_dialog.dart';
-import '../../core/network/socket_service.dart';
+import 'package:frontend/widgets/Dialogs/endChatDialog.dart';
+import '../../core/network/socketService.dart';
 import 'dart:async';
 
 class ChatScreen extends StatefulWidget {
@@ -192,9 +192,7 @@ class _ChatScreenState extends State<ChatScreen> {
         appBar: ChatAppbar(strangerName: widget.strangerName,
             isOnline: true,
             strangerAvatar: widget.strangerAvatar,
-            onSkip: () {
-              widget.socketService.socket.emit("skip_stranger");
-            },
+            onSkip: skipStranger,
             onEndChat: endChat,
             onBlock: (){},
             onReport: (){},
@@ -240,6 +238,10 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       ),
     );
+  }
+
+  void skipStranger() {
+    widget.socketService.socket.emit("skip_stranger");
   }
 
   void _scrollToBottom() {

@@ -1,10 +1,10 @@
 import "package:dio/dio.dart";
 import "package:flutter/material.dart";
-import "package:frontend/core/network/socket_service.dart";
-import "package:frontend/core/storage/shared_pref_service.dart";
+import "package:frontend/core/network/socketService.dart";
+import "package:frontend/core/storage/sharedPrefService.dart";
 import "package:frontend/theme/appColor.dart";
 import "package:frontend/core/utils/validator.dart";
-import "package:frontend/screens/auth/profile_setup_screen.dart";
+import "package:frontend/screens/auth/profileSetupScreen.dart";
 import "package:frontend/services/authServices.dart";
 import "package:frontend/widgets/CustomWidgets/CustomeMessanger.dart";
 import "package:frontend/widgets/CustomWidgets/customButton.dart";

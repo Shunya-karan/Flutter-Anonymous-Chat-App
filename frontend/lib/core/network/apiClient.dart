@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:frontend/core/constants/apiConstants.dart';
-import 'package:frontend/core/storage/shared_pref_service.dart';
+import 'package:frontend/core/storage/sharedPrefService.dart';
 
 class ApiClient {
   ApiClient._();

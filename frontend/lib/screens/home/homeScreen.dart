@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/core/network/socket_service.dart';
-import 'package:frontend/providers/userprovider.dart';
+import 'package:frontend/core/network/socketService.dart';
+import 'package:frontend/providers/userProvider.dart';
 import 'package:frontend/widgets/Menus/appDrawer.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/homecard.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/interestSection.dart';
@@ -9,7 +9,7 @@ import 'package:frontend/widgets/HomeScreenWidgets/securityFooter.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/startChatButton.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/welcomHeader.dart';
 import 'package:provider/provider.dart';
-import '../chat/chat_screen.dart';
+import '../chat/chatScreen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage( {super.key});

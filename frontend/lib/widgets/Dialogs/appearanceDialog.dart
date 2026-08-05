@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:frontend/providers/themeprovider.dart';
+import 'package:frontend/providers/themeProvider.dart';
 
 class AppearanceDialog extends StatelessWidget {
   const AppearanceDialog({super.key});

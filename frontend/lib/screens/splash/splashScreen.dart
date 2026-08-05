@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:frontend/core/network/socket_service.dart';
-import 'package:frontend/core/storage/shared_pref_service.dart';
-import 'package:frontend/providers/userprovider.dart';
-import 'package:frontend/screens/auth/login_screen.dart';
+import 'package:frontend/core/network/socketService.dart';
+import 'package:frontend/core/storage/sharedPrefService.dart';
+import 'package:frontend/providers/userProvider.dart';
+import 'package:frontend/screens/auth/loginScreen.dart';
 import 'package:frontend/screens/home/homeScreen.dart';
 import 'package:provider/provider.dart';
 
-// import '../auth/login_screen.dart';
+// import '../auth/loginScreen.dart';
 // import '../home/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {

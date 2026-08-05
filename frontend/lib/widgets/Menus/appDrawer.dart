@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/anonymous/anonymousProfileScreen.dart';
-import 'package:frontend/screens/profile/profile_screen.dart';
-import 'package:frontend/widgets/Dialogs/appearance_dialog.dart';
-import 'package:frontend/widgets/logout_button.dart';
-import 'package:frontend/widgets/Menus/profile_header.dart';
-import 'package:frontend/widgets/Menus/setting_tile.dart';
+import 'package:frontend/screens/profile/profileScreen.dart';
+import 'package:frontend/widgets/Dialogs/appearanceDialog.dart';
+import 'package:frontend/widgets/logoutButton.dart';
+import 'package:frontend/widgets/Menus/profileHeader.dart';
+import 'package:frontend/widgets/Menus/settingTile.dart';
 
 class AppDrawer extends StatelessWidget {
   final String username;

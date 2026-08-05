@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/network/apiClient.dart';
-import 'package:frontend/providers/userprovider.dart';
+import 'package:frontend/providers/userProvider.dart';
 import 'package:frontend/theme/darkTheme.dart';
 import 'package:frontend/theme/lightTheme.dart';
-import 'package:frontend/screens/splash/splash_screen.dart';
+import 'package:frontend/screens/splash/splashScreen.dart';
 import 'package:provider/provider.dart';
-import 'package:frontend/providers/themeprovider.dart';
+import 'package:frontend/providers/themeProvider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
