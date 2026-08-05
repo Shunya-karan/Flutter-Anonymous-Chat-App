@@ -7,6 +7,7 @@ import 'package:frontend/screens/chat/chatWidgets/emptyChatView.dart';
 import 'package:frontend/screens/chat/chatWidgets/typingIndicator.dart';
 import 'package:frontend/widgets/CustomWidgets/CustomeMessanger.dart';
 import 'package:frontend/widgets/Dialogs/endChatDialog.dart';
+import 'package:frontend/widgets/Dialogs/reportUserDialog.dart';
 import '../../core/network/socketService.dart';
 import 'dart:async';
 
@@ -49,7 +50,8 @@ class _ChatScreenState extends State<ChatScreen> {
   late Function(dynamic) disconnectListener;
   late Function(dynamic) strangerChatEndedListener;
   late Function(dynamic) endChatSuccessListener;
-
+  late Function(dynamic) reportSuccessListener;
+  late Function(dynamic) reportFailedListener;
 
   @override
   void initState() {
@@ -141,6 +143,28 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     };
     widget.socketService.socket.on("user_stop_typing", stopTypingListener);
+
+    //USER REPORTING
+    reportSuccessListener = (_) {
+      if (!mounted) return;
+      widget.socketService.socket.emit("end_chat");
+      CustomMessenger.show(context, message: "User Reported Successfully",bgColor: Colors.green);
+    };
+    widget.socketService.socket.on(
+      "report_success",
+      reportSuccessListener,
+    );
+
+    reportFailedListener = (data) {
+      if (!mounted) return;
+      CustomMessenger.show(context,
+          message: data["message"] ?? "Unable to report user.",
+          bgColor: Colors.red);
+    };
+    widget.socketService.socket.on(
+      "report_failed",
+      reportFailedListener,
+    );
   }
 
   @override
@@ -178,6 +202,15 @@ class _ChatScreenState extends State<ChatScreen> {
       "stranger_disconnected",
       disconnectListener,
     );
+    widget.socketService.socket.off(
+      "report_success",
+      reportSuccessListener,
+    );
+
+    widget.socketService.socket.off(
+      "report_failed",
+      reportFailedListener,
+    );
     messageController.dispose();
     scrollController.dispose();
     super.dispose();
@@ -195,7 +228,7 @@ class _ChatScreenState extends State<ChatScreen> {
             onSkip: skipStranger,
             onEndChat: endChat,
             onBlock: (){},
-            onReport: (){},
+            onReport:reportUser,
             ),
 
         body: SafeArea(
@@ -335,4 +368,19 @@ class _ChatScreenState extends State<ChatScreen> {
   }
   }
 
+  Future<void> reportUser() async {
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (_) => const ReportUserDialog(),
+    );
+
+    if (reason == null) return;
+
+    widget.socketService.socket.emit(
+      "report_user",
+      {
+        "reason": reason,
+      },
+    );
+  }
 }
