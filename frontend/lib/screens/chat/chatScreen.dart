@@ -6,6 +6,7 @@ import 'package:frontend/screens/chat/chatWidgets/connectionBanner.dart';
 import 'package:frontend/screens/chat/chatWidgets/emptyChatView.dart';
 import 'package:frontend/screens/chat/chatWidgets/typingIndicator.dart';
 import 'package:frontend/widgets/CustomWidgets/CustomeMessanger.dart';
+import 'package:frontend/widgets/Dialogs/blockUserDialog.dart';
 import 'package:frontend/widgets/Dialogs/endChatDialog.dart';
 import 'package:frontend/widgets/Dialogs/reportUserDialog.dart';
 import '../../core/network/socketService.dart';
@@ -52,6 +53,8 @@ class _ChatScreenState extends State<ChatScreen> {
   late Function(dynamic) endChatSuccessListener;
   late Function(dynamic) reportSuccessListener;
   late Function(dynamic) reportFailedListener;
+  late Function(dynamic) blockSuccessListener;
+  late Function(dynamic) blockFailedListener;
 
   @override
   void initState() {
@@ -111,7 +114,6 @@ class _ChatScreenState extends State<ChatScreen> {
       CustomMessenger.show(context, message: "Chat ended.",bgColor: Colors.green);
       isEndingChat = false;
     };
-
     widget.socketService.socket.on("chat_ended", endChatSuccessListener);
 
     // if Stranger Ended chat
@@ -147,7 +149,6 @@ class _ChatScreenState extends State<ChatScreen> {
     //USER REPORTING
     reportSuccessListener = (_) {
       if (!mounted) return;
-      widget.socketService.socket.emit("end_chat");
       CustomMessenger.show(context, message: "User Reported Successfully",bgColor: Colors.green);
     };
     widget.socketService.socket.on(
@@ -164,6 +165,26 @@ class _ChatScreenState extends State<ChatScreen> {
     widget.socketService.socket.on(
       "report_failed",
       reportFailedListener,
+    );
+
+    blockSuccessListener = (_) {
+      if (!mounted) return;
+      CustomMessenger.show(context, message: "User Blocked Successfully",bgColor: ColorScheme.of(context).error);
+    };
+    widget.socketService.socket.on(
+      "blocked_success",
+      blockSuccessListener,
+    );
+
+    blockFailedListener = (data) {
+      if (!mounted) return;
+      CustomMessenger.show(context,
+          message: data["message"] ?? "Unable to block user.",
+          bgColor: Colors.red);
+    };
+    widget.socketService.socket.on(
+      "block_failed",
+      blockFailedListener,
     );
   }
 
@@ -227,7 +248,7 @@ class _ChatScreenState extends State<ChatScreen> {
             strangerAvatar: widget.strangerAvatar,
             onSkip: skipStranger,
             onEndChat: endChat,
-            onBlock: (){},
+            onBlock: blockUser,
             onReport:reportUser,
             ),
 
@@ -381,6 +402,16 @@ class _ChatScreenState extends State<ChatScreen> {
       {
         "reason": reason,
       },
+    );
+  }
+
+  Future<void> blockUser() async {
+     await showDialog<String>(
+      context: context,
+      builder: (_) => const BlockUserDialog(),
+    );
+    widget.socketService.socket.emit(
+      "block_user"
     );
   }
 }

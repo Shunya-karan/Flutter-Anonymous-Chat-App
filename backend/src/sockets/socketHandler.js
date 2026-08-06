@@ -1,4 +1,5 @@
 const AnonymousProfile = require("../models/anonymousProfile");
+const blockedUserModel = require("../models/blockUserModel");
 const reportModel = require("../models/reportModel");
 const { randomUUID } = require("crypto");
 
@@ -60,6 +61,14 @@ module.exports = (io) => {
     return { partnerId };
   }
 
+  function endChatAfterModeration(socket) {
+    const result = endCurrentChat(socket);
+
+    if (!result) return;
+
+    io.to(result.partnerId).emit("stranger_ended_chat");
+    socket.emit("chat_ended");
+  }
 
   io.on("connection", (socket) => {
 
@@ -68,6 +77,7 @@ module.exports = (io) => {
 
     // FIND STRANGER
     socket.on("find_stranger", async (data) => {
+      try{
       const interests = data?.interests || [];
 
       const currentUserProfile = await AnonymousProfile.findOne({
@@ -77,12 +87,42 @@ module.exports = (io) => {
       // If someone waiting who shares atleast one interest
       if (waitingUsers.length > 0) {
         // find a stranger 
-        const partnerIndex = waitingUsers.findIndex(
-          (user) =>
-            user.socket.id !== socket.id &&
-            user.interests.some(
-              (interest) => interests.includes(interest))
+        const [blockedUsers, blockedByUsers] = await Promise.all([
+        blockedUserModel.find({ user: socket.user.id }).select("blockedUser"),
+        blockedUserModel.find({ blockedUser: socket.user.id }).select("user"),
+        ]);
+
+        const blockedSet = new Set(
+        blockedUsers.map(item => item.blockedUser.toString())
         );
+
+        const blockedBySet = new Set(
+        blockedByUsers.map(item => item.user.toString())
+        );
+        // Find a stranger with common interests
+        // while respecting blocked users.
+        const partnerIndex = waitingUsers.findIndex((user) =>{
+
+            // Skip yourself
+            if(user.socket.id===socket.id) return false;
+
+            // Must share at least one common interest
+            const hasCommonInterest = user.interests.some(
+              (interest) => interests.includes(interest)
+            );
+
+            if(!hasCommonInterest) return false;
+
+            // Skip if current user has blocked them
+            if(blockedBySet.has(user.userId.toString())) return false;
+
+            // Skip if they have blocked the current user
+            if(blockedSet.has(user.userId.toString())) return false;
+
+            return true;
+        }
+        );
+
         let partnerData;
         if (partnerIndex !== -1) {
           partnerData = waitingUsers.splice(partnerIndex, 1)[0];
@@ -127,7 +167,14 @@ module.exports = (io) => {
         // Add current user to waiting list
         addToQueue(socket, interests, currentUserProfile);
       }
+    }catch(error){
+      console.error(error);
+      socket.emit("matching_failed", {
+      message: "Unable to find a stranger."
+      });
+    }
     });
+    
 
     /* SEND MESSAGE */
     socket.on("send_message", (data) => {
@@ -219,7 +266,6 @@ module.exports = (io) => {
       socket.to(roomId).emit("user_stop_typing");
     });
 
-
     // Reporting user 
     socket.on("report_user",async (data)=>{
       try{
@@ -255,6 +301,9 @@ module.exports = (io) => {
           reason: reportingReason
       });
         socket.emit("report_success");
+
+        const result = endCurrentChat(socket)
+        endChatAfterModeration(socket);
       
     }catch(error){
       console.error(error);
@@ -264,7 +313,45 @@ module.exports = (io) => {
     }
     })
 
-  }
+   // Blocking user 
+    socket.on("block_user",async ()=>{
+      try{
+      const user = socket.user.id;
+      const blockedUser = partnerUserIds[socket.id];
 
+      if(!blockedUser){
+        socket.emit("blocked_failed",{
+          message: "No active chat found."
+        });
+        return;
+      }
+      const existing =await blockedUserModel.findOne({
+        user,
+        blockedUser
+      });
+      if(existing){
+        socket.emit("blocked_failed",{
+          message:"You have already blocked this user."
+        });
+        return;
+      }
+      
+      await blockedUserModel.create({
+          user,
+          blockedUser,
+      });
+        socket.emit("blocked_success");
+        endChatAfterModeration(socket);
+      
+      
+    }catch(error){
+      console.error(error);
+      socket.emit("blocked_failed", {
+      message: "Unable to submit block."
+    });
+    }
+    })
+
+  }
   )
 }

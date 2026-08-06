@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 class ChatMenu extends StatelessWidget {
-  final VoidCallback onSkip;
+  // final VoidCallback onSkip;
   final VoidCallback onEndChat;
   final VoidCallback onReport;
   final VoidCallback onBlock;
 
   const ChatMenu({
     super.key,
-    required this.onSkip,
+    // required this.onSkip,
     required this.onEndChat,
     required this.onReport,
     required this.onBlock,
@@ -29,10 +29,6 @@ class ChatMenu extends StatelessWidget {
       color: theme.colorScheme.surface,
       onSelected: (value) {
         switch (value) {
-          case "skip":
-            onSkip();
-            break;
-
           case "end":
             onEndChat();
             break;
@@ -47,16 +43,6 @@ class ChatMenu extends StatelessWidget {
         }
       },
       itemBuilder: (context) => [
-        PopupMenuItem(
-          value: "skip",
-          child: Row(
-            children: const [
-              Icon(Icons.skip_next_rounded),
-              SizedBox(width: 12),
-              Text("Skip Stranger"),
-            ],
-          ),
-        ),
 
         PopupMenuItem(
           value: "end",

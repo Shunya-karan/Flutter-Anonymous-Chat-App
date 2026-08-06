@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/chat/chatWidgets/chat_menu.dart';
+import 'package:frontend/screens/chat/chatWidgets/chatMenu.dart';
 
 class ChatAppbar extends StatelessWidget implements PreferredSizeWidget {
   final String strangerName;
@@ -112,7 +112,8 @@ class ChatAppbar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
-        ChatMenu(onSkip: onSkip,
+        FilledButton(onPressed: onSkip, child: Text("Skip ")),
+        ChatMenu(
             onEndChat: onEndChat,
             onReport: onReport,
             onBlock: onBlock
