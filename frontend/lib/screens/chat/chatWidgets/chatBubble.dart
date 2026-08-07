@@ -5,10 +5,12 @@ class ChatBubble extends StatelessWidget {
   final String message;
   final bool isMe;
   final int sentAt;
+  final bool delivered;
   const ChatBubble({super.key,
   required this.isMe,
     required this.message,
-    required this.sentAt
+    required this.sentAt,
+    required this.delivered
   });
 
   @override
@@ -42,26 +44,45 @@ class ChatBubble extends StatelessWidget {
               Radius.circular(isMe ? 4 : 18),
             ),
           ),
-          child: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 55),
-                child: Text(
-                  message,
-                  style: theme.textTheme.bodyLarge,
-                ),
+          child:Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              message,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: isMe
+                    ? theme.colorScheme.onPrimary
+                    : theme.colorScheme.onSecondary,
+                height: 1.35,
               ),
+            ),
+            const SizedBox(height: 4),
 
-              Positioned(
-                right: 0,
-                bottom: 0,
-                child: Text(
+            Row(
+
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text(
                   formattedTime,
-                  style: theme.textTheme.labelSmall,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color:Colors.black
+                  ),
                 ),
-              ),
-            ],
-          ),
+
+                if (isMe) ...[
+                  const SizedBox(width: 4),
+                  Icon(
+                    delivered ? Icons.done_all_rounded : Icons.done_rounded,
+                    size: 15,
+                    color: theme.colorScheme.secondary
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
         ),
       ),
     );

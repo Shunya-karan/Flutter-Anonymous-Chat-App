@@ -9,8 +9,8 @@ module.exports = (io) => {
   let waitingUsers = [];
   let onlineUsers = 0;
   const userRooms = {};
-
-  const partnerUserIds  = {};
+  const partnerUserIds = {};
+  const searchTimeouts = {};
 
   // Add user to queue for chatting
   function addToQueue(socket, interests, anonymousProfile) {
@@ -29,12 +29,42 @@ module.exports = (io) => {
     });
   }
 
+  function startSearchTimeout(socket) {
+    clearSearchTimeout(socket.id);
+
+    searchTimeouts[socket.id] = setTimeout(() => {
+
+      const stillWaiting = waitingUsers.some(
+        user => user.socket.id === socket.id
+      );
+
+      if (!stillWaiting) return;
+
+      // Remove user from queue
+      waitingUsers = waitingUsers.filter(
+        user => user.socket.id !== socket.id
+      );
+
+      socket.emit("search_timeout");
+
+      delete searchTimeouts[socket.id];
+
+    }, 30000); // 30 seconds
+  }
+
+  function clearSearchTimeout(socketId) {
+    if (searchTimeouts[socketId]) {
+      clearTimeout(searchTimeouts[socketId]);
+      delete searchTimeouts[socketId];
+    }
+  }
+
   // Ending chat and removing user from queue
   function endCurrentChat(socket) {
     // find stranger who is connected to this socket
     const partnerId = partners[socket.id];
 
-    if (!partnerId) return null;   
+    if (!partnerId) return null;
 
     const roomId = userRooms[socket.id];
 
@@ -55,8 +85,8 @@ module.exports = (io) => {
     delete partners[partnerId];
     delete userRooms[socket.id];
     delete userRooms[partnerId];
-    delete partnerUserIds [socket.id];
-    delete partnerUserIds [partnerId];
+    delete partnerUserIds[socket.id];
+    delete partnerUserIds[partnerId];
 
     return { partnerId };
   }
@@ -77,121 +107,147 @@ module.exports = (io) => {
 
     // FIND STRANGER
     socket.on("find_stranger", async (data) => {
-      try{
-      const interests = data?.interests || [];
+      try {
+        const interests = data?.interests || [];
 
-      const currentUserProfile = await AnonymousProfile.findOne({
-        user: socket.user.id,
-      }).select("displayName avatar -_id");
+        const currentUserProfile = await AnonymousProfile.findOne({
+          user: socket.user.id,
+        }).select("displayName avatar -_id");
 
-      // If someone waiting who shares atleast one interest
-      if (waitingUsers.length > 0) {
-        // find a stranger 
-        const [blockedUsers, blockedByUsers] = await Promise.all([
-        blockedUserModel.find({ user: socket.user.id }).select("blockedUser"),
-        blockedUserModel.find({ blockedUser: socket.user.id }).select("user"),
-        ]);
+        // If someone waiting who shares atleast one interest
+        if (waitingUsers.length > 0) {
+          // find a stranger 
+          const [blockedUsers, blockedByUsers] = await Promise.all([
+            blockedUserModel.find({ user: socket.user.id }).select("blockedUser"),
+            blockedUserModel.find({ blockedUser: socket.user.id }).select("user"),
+          ]);
 
-        const blockedSet = new Set(
-        blockedUsers.map(item => item.blockedUser.toString())
-        );
+          const blockedSet = new Set(
+            blockedUsers.map(item => item.blockedUser.toString())
+          );
 
-        const blockedBySet = new Set(
-        blockedByUsers.map(item => item.user.toString())
-        );
-        // Find a stranger with common interests
-        // while respecting blocked users.
-        const partnerIndex = waitingUsers.findIndex((user) =>{
+          const blockedBySet = new Set(
+            blockedByUsers.map(item => item.user.toString())
+          );
+          // Find a stranger with common interests
+          // while respecting blocked users.
+          const partnerIndex = waitingUsers.findIndex((user) => {
 
             // Skip yourself
-            if(user.socket.id===socket.id) return false;
+            if (user.socket.id === socket.id) return false;
 
             // Must share at least one common interest
             const hasCommonInterest = user.interests.some(
               (interest) => interests.includes(interest)
             );
 
-            if(!hasCommonInterest) return false;
+            if (!hasCommonInterest) return false;
 
             // Skip if current user has blocked them
-            if(blockedBySet.has(user.userId.toString())) return false;
+            if (blockedBySet.has(user.userId.toString())) return false;
 
             // Skip if they have blocked the current user
-            if(blockedSet.has(user.userId.toString())) return false;
+            if (blockedSet.has(user.userId.toString())) return false;
 
             return true;
-        }
-        );
+          }
+          );
 
-        let partnerData;
-        if (partnerIndex !== -1) {
-          partnerData = waitingUsers.splice(partnerIndex, 1)[0];
+          let partnerData;
+          if (partnerIndex !== -1) {
+            partnerData = waitingUsers.splice(partnerIndex, 1)[0];
+          } else {
+            addToQueue(socket, interests, currentUserProfile);
+            startSearchTimeout(socket);
+            return;
+          }
+          if (!partnerData) {
+            addToQueue(socket, interests, currentUserProfile);
+            startSearchTimeout(socket);
+            return;
+          }
+          const partnerProfile = partnerData.anonymousProfile;
+
+          const partner = partnerData.socket;
+          const roomId = randomUUID();
+
+          // save users dbs id
+          // it is require for Reporting and Blocking
+          partnerUserIds[socket.id] = partner.user.id;
+          partnerUserIds[partner.id] = socket.user.id;
+
+          // store active socket pairing
+          partners[socket.id] = partner.id;
+          partners[partner.id] = socket.id;
+          // storing chat roomm for both users 
+          userRooms[socket.id] = roomId;
+          userRooms[partner.id] = roomId;
+
+          clearSearchTimeout(socket.id);
+          clearSearchTimeout(partner.id);
+          socket.join(roomId);
+          partner.join(roomId);
+
+
+          socket.emit("matched", {
+            roomId,
+            stranger: partnerProfile
+          });
+
+          partner.emit("matched", {
+            roomId,
+            stranger: currentUserProfile
+          })
+
         } else {
+          // Add current user to waiting list
           addToQueue(socket, interests, currentUserProfile);
-          return;
+          startSearchTimeout(socket);
         }
-        if (!partnerData) {
-          addToQueue(socket, interests, currentUserProfile);
-          return;
-        }
-        const partnerProfile = partnerData.anonymousProfile;
-
-        const partner = partnerData.socket;
-        const roomId = randomUUID();
-
-        // save users dbs id
-        // it is require for Reporting and Blocking
-        partnerUserIds [socket.id] = partner.user.id;
-        partnerUserIds [partner.id] = socket.user.id;
-
-        // store active socket pairing
-        partners[socket.id] = partner.id;
-        partners[partner.id] = socket.id;
-        // storing chat roomm for both users 
-        userRooms[socket.id] = roomId;
-        userRooms[partner.id] = roomId;
-
-        socket.join(roomId);
-        partner.join(roomId);
-
-        socket.emit("matched", {
-          roomId,
-          stranger: partnerProfile
+      } catch (error) {
+        console.error(error);
+        socket.emit("matching_failed", {
+          message: "Unable to find a stranger."
         });
-
-        partner.emit("matched", {
-          roomId,
-          stranger: currentUserProfile
-        })
-      } else {
-        // Add current user to waiting list
-        addToQueue(socket, interests, currentUserProfile);
       }
-    }catch(error){
-      console.error(error);
-      socket.emit("matching_failed", {
-      message: "Unable to find a stranger."
-      });
-    }
     });
-    
+
 
     /* SEND MESSAGE */
     socket.on("send_message", (data) => {
       // msg to everyone inside the chatroom
       if (!data.roomId || !data.message?.trim()) {
-      return;
+        return;
       }
+      const messageId = randomUUID();
+
       io.to(data.roomId).emit("receive_message", {
+        messageId,
         sender: socket.id,
         message: data.message,
         sentAt: Date.now(),
       });
 
     });
+    
+    // msg deliverd and receive_message
+    socket.on("message_received", (data) => {
+   
+      const partnerId = partners[socket.id];
+
+      if (!partnerId) {
+        return;
+      }
+
+      io.to(partnerId).emit("message_delivered", {
+        messageId: data.messageId,
+      });
+
+    });
 
     // DISCONNECT
     socket.on("disconnect", () => {
+      clearSearchTimeout(socket.id);
       const roomId = userRooms[socket.id];
       if (roomId) {
         socket.leave(roomId);
@@ -223,6 +279,7 @@ module.exports = (io) => {
 
     // End current chat but continue searching for another stranger.
     socket.on("skip_stranger", () => {
+      clearSearchTimeout(socket.id);
       const result = endCurrentChat(socket);
 
       if (!result) return;
@@ -267,89 +324,89 @@ module.exports = (io) => {
     });
 
     // Reporting user 
-    socket.on("report_user",async (data)=>{
-      try{
-      const reporter = socket.user.id;
-      const reportedUser = partnerUserIds[socket.id];
-      const reportingReason = data.reason;
+    socket.on("report_user", async (data) => {
+      try {
+        const reporter = socket.user.id;
+        const reportedUser = partnerUserIds[socket.id];
+        const reportingReason = data.reason;
 
-      if(!reportedUser){
-        socket.emit("report_failed",{
-          message: "No active chat found."
+        if (!reportedUser) {
+          socket.emit("report_failed", {
+            message: "No active chat found."
+          });
+          return;
+        }
+        const existing = await reportModel.findOne({
+          reporter,
+          reportedUser
         });
-        return;
-      }
-      const existing =await reportModel.findOne({
-        reporter,
-        reportedUser
-      });
-      if(existing){
-        socket.emit("report_failed",{
-          message:"You have already reported this user."
-        });
-        return;
-      }
-      if (!reportingReason) {
-        socket.emit("report_failed", {
-          message: "Report reason is required."
-        });
-        return;
-      }
-      await reportModel.create({
+        if (existing) {
+          socket.emit("report_failed", {
+            message: "You have already reported this user."
+          });
+          return;
+        }
+        if (!reportingReason) {
+          socket.emit("report_failed", {
+            message: "Report reason is required."
+          });
+          return;
+        }
+        await reportModel.create({
           reporter,
           reportedUser,
           reason: reportingReason
-      });
+        });
         socket.emit("report_success");
 
         const result = endCurrentChat(socket)
         endChatAfterModeration(socket);
-      
-    }catch(error){
-      console.error(error);
-      socket.emit("report_failed", {
-      message: "Unable to submit report."
-    });
-    }
+
+      } catch (error) {
+        console.error(error);
+        socket.emit("report_failed", {
+          message: "Unable to submit report."
+        });
+      }
     })
 
-   // Blocking user 
-    socket.on("block_user",async ()=>{
-      try{
-      const user = socket.user.id;
-      const blockedUser = partnerUserIds[socket.id];
+    // Blocking user 
+    socket.on("block_user", async () => {
+      try {
+        const user = socket.user.id;
+        const blockedUser = partnerUserIds[socket.id];
 
-      if(!blockedUser){
-        socket.emit("blocked_failed",{
-          message: "No active chat found."
+        if (!blockedUser) {
+          socket.emit("blocked_failed", {
+            message: "No active chat found."
+          });
+          return;
+        }
+        const existing = await blockedUserModel.findOne({
+          user,
+          blockedUser
         });
-        return;
-      }
-      const existing =await blockedUserModel.findOne({
-        user,
-        blockedUser
-      });
-      if(existing){
-        socket.emit("blocked_failed",{
-          message:"You have already blocked this user."
-        });
-        return;
-      }
-      
-      await blockedUserModel.create({
+        if (existing) {
+          socket.emit("blocked_failed", {
+            message: "You have already blocked this user."
+          });
+          return;
+        }
+
+        await blockedUserModel.create({
           user,
           blockedUser,
-      });
+        });
         socket.emit("blocked_success");
         endChatAfterModeration(socket);
-      
-      
-    }catch(error){
-      console.error(error);
-      socket.emit("blocked_failed", {
-      message: "Unable to submit block."
-    });
-    }
+
+
+      } catch (error) {
+        console.error(error);
+        socket.emit("blocked_failed", {
+          message: "Unable to submit block."
+        });
+      }
     })
 
   }

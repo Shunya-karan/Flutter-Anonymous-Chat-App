@@ -31,7 +31,7 @@ class ChatAppbar extends StatelessWidget implements PreferredSizeWidget {
 
     return AppBar(
       automaticallyImplyLeading: false,
-      elevation: 0,
+      elevation: 1,
       titleSpacing: 8,
       title: Row(
         children: [

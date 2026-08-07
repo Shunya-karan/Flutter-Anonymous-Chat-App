@@ -47,6 +47,7 @@ class _ChatScreenState extends State<ChatScreen> {
   late Function(dynamic) receiveMessageListener;
   late Function(dynamic) typingListener;
   late Function(dynamic) stopTypingListener;
+  late Function(dynamic) deliveredListener;
   late Function(dynamic) skipListener;
   late Function(dynamic) disconnectListener;
   late Function(dynamic) strangerChatEndedListener;
@@ -56,14 +57,10 @@ class _ChatScreenState extends State<ChatScreen> {
   late Function(dynamic) blockSuccessListener;
   late Function(dynamic) blockFailedListener;
 
-  @override
-  void initState() {
-    super.initState();
-
+  void _initializeChat() {
     widget.socketService.socket.off("skip_success");
     widget.socketService.socket.off("stranger_disconnected");
 
-    myId = widget.socketService.socket.id!;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showBanner(
         "Connected",
@@ -71,27 +68,71 @@ class _ChatScreenState extends State<ChatScreen> {
         hideAfter: const Duration(seconds: 2),
       );
     });
-    //receiving messages
+
+  }
+
+  void _registerMessageListeners() {
+
     receiveMessageListener = (data) {
       if (!mounted) return;
       setState(() {
         messages.add({
+          "messageId": data["messageId"],
           "sender": data["sender"],
           "message": data["message"],
-          "sentAt":data["sentAt"]
+          "sentAt": data["sentAt"],
+          "delivered": data["sender"] != myId,
         });
       });
+
+      if(data["sender"]!=myId){
+        widget.socketService.socket.emit(
+          "message_received",
+          {
+            "messageId": data["messageId"],
+            "roomId": widget.roomId,
+          },
+        );
+      }
       _scrollToBottom();
     };
-    widget.socketService.socket.on("receive_message", receiveMessageListener);
+    widget.socketService.socket.on(
+      "receive_message",
+      receiveMessageListener,
+    );
 
-    // STRANGER DISCONNECTED
+    deliveredListener = (data) {
+
+      final messageId = data["messageId"];
+
+      final index = messages.indexWhere(
+            (msg) => msg["messageId"] == messageId,
+      );
+
+
+      if (index != -1) {
+        setState(() {
+          messages[index]["delivered"] = true;
+        });
+
+      }
+
+    };
+    widget.socketService.socket.on(
+      "message_delivered",
+      deliveredListener,
+    );
+  }
+
+  void _registerChatStateListeners(){
+    // StrangerDisconnect
     disconnectListener = (_) {
       showBanner(
         "Stranger left. Finding another stranger...",
         Colors.orange,
         hideAfter: const Duration(seconds: 2),
       );
+
       searchAgain();
     };
     widget.socketService.socket.on("stranger_disconnected", disconnectListener);
@@ -126,15 +167,17 @@ class _ChatScreenState extends State<ChatScreen> {
       searchAgain();
     };
     widget.socketService.socket.on("stranger_ended_chat", strangerChatEndedListener);
+  }
 
+  void _registerTypingListeners() {
     // USER TYPING
     typingListener = (_) {
-        if (strangerTyping) return;
-        setState(() {
-          strangerTyping = true;
-        });
-        _scrollToBottom();
-      };
+      if (strangerTyping) return;
+      setState(() {
+        strangerTyping = true;
+      });
+      _scrollToBottom();
+    };
     widget.socketService.socket.on("user_typing", typingListener);
 
     // USER STOP TYPING
@@ -146,6 +189,9 @@ class _ChatScreenState extends State<ChatScreen> {
     };
     widget.socketService.socket.on("user_stop_typing", stopTypingListener);
 
+  }
+
+  void _registerSafetyListeners() {
     //USER REPORTING
     reportSuccessListener = (_) {
       if (!mounted) return;
@@ -188,11 +234,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  @override
-  void dispose() {
-    // if user disconnected or skipeed then it will deletee this things
-    typingTimer?.cancel();
-    bannerTimer?.cancel();
+  void _removeSocketListeners(){
     widget.socketService.socket.off(
       "receive_message",
       receiveMessageListener,
@@ -211,6 +253,12 @@ class _ChatScreenState extends State<ChatScreen> {
       "skip_success",
       skipListener,
     );
+
+    widget.socketService.socket.off(
+      "message_delivered",
+      deliveredListener,
+    );
+
     widget.socketService.socket.off(
       "chat_ended",
       endChatSuccessListener,
@@ -232,6 +280,25 @@ class _ChatScreenState extends State<ChatScreen> {
       "report_failed",
       reportFailedListener,
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    myId = widget.socketService.socket.id!;
+    _initializeChat();
+    _registerMessageListeners();
+    _registerChatStateListeners();
+    _registerTypingListeners();
+    _registerSafetyListeners();
+  }
+
+  @override
+  void dispose() {
+    // if user disconnected or skiped then it will deletee this things
+    _removeSocketListeners();
+    typingTimer?.cancel();
+    bannerTimer?.cancel();
     messageController.dispose();
     scrollController.dispose();
     super.dispose();
@@ -251,7 +318,6 @@ class _ChatScreenState extends State<ChatScreen> {
             onBlock: blockUser,
             onReport:reportUser,
             ),
-
         body: SafeArea(
           child: Column(
             children: [
@@ -266,13 +332,13 @@ class _ChatScreenState extends State<ChatScreen> {
               padding: const EdgeInsets.all(12),
               itemCount:  messages.length,
               itemBuilder: (context, index) {
-
                 final msg = messages[index];
                 final isMe = msg["sender"] == myId;
                 return ChatBubble(
                   message: msg["message"],
                   isMe: isMe,
                   sentAt: msg["sentAt"],
+                    delivered:msg["delivered"]??false
                 );
                 },
               ),
@@ -369,9 +435,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void showBanner(String message,
-      Color color,
-      {Duration? hideAfter}) {
+  void showBanner(String message, Color color, {Duration? hideAfter}) {
     if (!mounted) return;
 
     setState(() {

@@ -24,6 +24,8 @@ class SocketService {
 
     socket.onConnect((_) {
       print("Socket Connected");
+      print("Socket ID: ${socket.id}");
+
     });
 
     socket.onDisconnect((_) {
@@ -33,6 +35,7 @@ class SocketService {
     socket.onConnectError((error) {
       print("Connect Error: $error");
     });
+
   }
 
   void disconnect() {

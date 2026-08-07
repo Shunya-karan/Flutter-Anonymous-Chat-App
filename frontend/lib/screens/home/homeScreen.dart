@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/network/socketService.dart';
 import 'package:frontend/providers/userProvider.dart';
+import 'package:frontend/widgets/CustomWidgets/CustomeMessanger.dart';
 import 'package:frontend/widgets/Menus/appDrawer.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/homecard.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/interestSection.dart';
@@ -35,6 +36,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     matchStranger();
+    matchingTimeOut();
     onlineCount();
   }
 
@@ -103,11 +105,30 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  //MatchingTimeOut
+  Future<void>matchingTimeOut()async{
+    socketService.socket.on("search_timeout", (_) {
+      if (!mounted) return;
+
+      setState(() {
+        status = "No strangers found";
+        isSearching = false;
+      });
+
+      CustomMessenger.show(
+        context,
+        message: "No strangers are available right now. Try again later.",
+        bgColor: Colors.red
+      );
+    });
+  }
+
 
   @override
   void dispose() {
     socketService.socket.off("matched");
     socketService.socket.off("online_count");
+    socketService.socket.off("search_timeout");
     super.dispose();
   }
 
