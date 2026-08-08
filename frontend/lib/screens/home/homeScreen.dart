@@ -11,6 +11,7 @@ import 'package:frontend/widgets/HomeScreenWidgets/startChatButton.dart';
 import 'package:frontend/widgets/HomeScreenWidgets/welcomHeader.dart';
 import 'package:provider/provider.dart';
 import '../chat/chatScreen.dart';
+import 'dart:async';
 
 class HomePage extends StatefulWidget {
   const HomePage( {super.key});
@@ -36,8 +37,9 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     matchStranger();
-    matchingTimeOut();
+    _registerMatchingTimeoutListener();
     onlineCount();
+    _registerRateLimitListeners();
   }
 
   Future<void>onlineCount()async{
@@ -47,10 +49,16 @@ class _HomePageState extends State<HomePage> {
       });
     });
   }
+
   Future<void>matchStranger()async{
     final user = context.read<UserProvider>().user;
     socketService.socket.off("matched");
+
     socketService.socket.on("matched", (data) {
+      if (!mounted) return;
+      setState(() {
+        isSearching = false;
+      });
       final roomId = data["roomId"];
       final stranger = data["stranger"];
 
@@ -89,24 +97,30 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-//Find Stranger function
+  //Find Stranger function
   Future<void> _findStranger() async {
+    if (isSearching) {
+      return;
+    }
     final user = context.read<UserProvider>().user;
     try {
       socketService.socket.emit("find_stranger", {
         "interests": user?.interests??[] ,
       });
+      if(!mounted) return;
       setState(() {
         isSearching = true;
         status = "Looking for a stranger...";
       });
+
+
     }catch(error){
       print(error);
     }
   }
 
   //MatchingTimeOut
-  Future<void>matchingTimeOut()async{
+  void _registerMatchingTimeoutListener(){
     socketService.socket.on("search_timeout", (_) {
       if (!mounted) return;
 
@@ -123,12 +137,43 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _registerRateLimitListeners(){
+        // if already matching
+        socketService.socket.on("already_searching",(data) {
+          if(!mounted) return;
+          setState(() {
+            status = "Already searching ...";
+            isSearching = true;
+          });
+          CustomMessenger.show(
+            context,
+            message: data["message"] ?? "You are already searching.",
+            bgColor: Colors.orange,
+          );
+        });
+
+        // if matching too quickly
+        socketService.socket.on("match_rate_limit", (data) {
+          if(!mounted) return;
+          setState(() {
+            status = "Search Again";
+            isSearching = false;
+          });
+          CustomMessenger.show(
+            context,
+            message: data["message"] ?? "You're searching too quickly.",
+            bgColor: Colors.orange,
+          );
+        });
+  }
 
   @override
   void dispose() {
     socketService.socket.off("matched");
     socketService.socket.off("online_count");
     socketService.socket.off("search_timeout");
+    socketService.socket.off("already_searching");
+    socketService.socket.off("match_rate_limit");
     super.dispose();
   }
 

@@ -56,6 +56,8 @@ class _ChatScreenState extends State<ChatScreen> {
   late Function(dynamic) reportFailedListener;
   late Function(dynamic) blockSuccessListener;
   late Function(dynamic) blockFailedListener;
+  late Function(dynamic) rateLimitListener;
+  late Function(dynamic) messageErrorListener;
 
   void _initializeChat() {
     widget.socketService.socket.off("skip_success");
@@ -71,6 +73,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   }
 
+  // message listeners
   void _registerMessageListeners() {
 
     receiveMessageListener = (data) {
@@ -104,12 +107,9 @@ class _ChatScreenState extends State<ChatScreen> {
     deliveredListener = (data) {
 
       final messageId = data["messageId"];
-
       final index = messages.indexWhere(
             (msg) => msg["messageId"] == messageId,
       );
-
-
       if (index != -1) {
         setState(() {
           messages[index]["delivered"] = true;
@@ -122,8 +122,32 @@ class _ChatScreenState extends State<ChatScreen> {
       "message_delivered",
       deliveredListener,
     );
+
+    rateLimitListener = (data) {
+      if (!mounted) return;
+      CustomMessenger.show(
+        context,
+        message: data["message"] ?? "You're sending messages too quickly.",
+        bgColor:Theme.of(context).colorScheme.error,
+      );
+    };
+    widget.socketService.socket.on(
+      "rate_limit",
+      rateLimitListener,
+    );
+
+    messageErrorListener=(data){
+      if(!mounted) return;
+      CustomMessenger.show(context,
+          message: data["message"]??"Unable to send message",
+          bgColor:Theme.of(context).colorScheme.error);
+    };
+    widget.socketService.socket.on(
+        "message_error",
+        messageErrorListener);
   }
 
+  // chats status listener
   void _registerChatStateListeners(){
     // StrangerDisconnect
     disconnectListener = (_) {
@@ -169,6 +193,7 @@ class _ChatScreenState extends State<ChatScreen> {
     widget.socketService.socket.on("stranger_ended_chat", strangerChatEndedListener);
   }
 
+  // typing listeners
   void _registerTypingListeners() {
     // USER TYPING
     typingListener = (_) {
@@ -191,6 +216,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   }
 
+  // report and block listener
   void _registerSafetyListeners() {
     //USER REPORTING
     reportSuccessListener = (_) {
@@ -234,6 +260,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  // Removing all sockets
   void _removeSocketListeners(){
     widget.socketService.socket.off(
       "receive_message",
@@ -249,6 +276,8 @@ class _ChatScreenState extends State<ChatScreen> {
       "user_stop_typing",
       stopTypingListener,
     );
+
+
     widget.socketService.socket.off(
       "skip_success",
       skipListener,
@@ -263,22 +292,39 @@ class _ChatScreenState extends State<ChatScreen> {
       "chat_ended",
       endChatSuccessListener,
     );
+
+
     widget.socketService.socket.off(
       "stranger_ended_chat",
       strangerChatEndedListener,
     );
+
+
     widget.socketService.socket.off(
       "stranger_disconnected",
       disconnectListener,
     );
+
+
     widget.socketService.socket.off(
       "report_success",
       reportSuccessListener,
     );
 
+
     widget.socketService.socket.off(
       "report_failed",
       reportFailedListener,
+    );
+
+    widget.socketService.socket.off(
+      "rate_limit",
+      rateLimitListener,
+    );
+
+    widget.socketService.socket.off(
+      "message_error",
+      messageErrorListener,
     );
   }
 

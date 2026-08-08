@@ -5,12 +5,16 @@ const { randomUUID } = require("crypto");
 
 module.exports = (io) => {
 
-  const partners = {};
   let waitingUsers = [];
   let onlineUsers = 0;
+
+  const partners = {};
   const userRooms = {};
   const partnerUserIds = {};
   const searchTimeouts = {};
+
+  const messageRateLimits = {};
+  const findStrangerRateLimits = {};
 
   // Add user to queue for chatting
   function addToQueue(socket, interests, anonymousProfile) {
@@ -27,8 +31,17 @@ module.exports = (io) => {
       interests,
       anonymousProfile
     });
+    startSearchTimeout(socket);
+
+  }
+  // cheking that user is already waiting or not
+  function isUserWaiting(socket) {
+    return waitingUsers.some(
+      user => user.socket.id === socket.id
+    );
   }
 
+  // Searching user for 30 second then it will stop 
   function startSearchTimeout(socket) {
     clearSearchTimeout(socket.id);
 
@@ -38,7 +51,10 @@ module.exports = (io) => {
         user => user.socket.id === socket.id
       );
 
-      if (!stillWaiting) return;
+      if (!stillWaiting) {
+        delete searchTimeouts[socket.id];
+        return;
+      }
 
       // Remove user from queue
       waitingUsers = waitingUsers.filter(
@@ -91,6 +107,7 @@ module.exports = (io) => {
     return { partnerId };
   }
 
+  // ending chats after block and report
   function endChatAfterModeration(socket) {
     const result = endCurrentChat(socket);
 
@@ -100,6 +117,125 @@ module.exports = (io) => {
     socket.emit("chat_ended");
   }
 
+  /*=============Rate LimitS============== */
+
+  // Rate Limits For Sending MEssage And receiving
+  function _sendingMessageRateLimit(socket, data) {
+
+    if (!data || typeof data.message !== "string") {
+      return;
+    }
+
+    const message = data.message.trim();
+
+    if (!message) return;
+
+    if (message.length > 1000) {
+      socket.emit("message_error", {
+        message: "Message is too long. Maximum 1000 characters allowed.",
+      });
+      return null;
+    }
+
+    const now = Date.now();
+
+    //  Create rate-limit record for this socket
+    if (!messageRateLimits[socket.id]) {
+      messageRateLimits[socket.id] = {
+        timestamps: [],
+        blockedUntil: 0,
+      };
+    }
+
+    const rateLimit = messageRateLimits[socket.id];
+
+    // Check cooldown
+    if (now < rateLimit.blockedUntil) {
+      const remainingSeconds = Math.ceil(
+        (rateLimit.blockedUntil - now) / 1000
+      );
+
+      socket.emit("rate_limit", {
+        message: `You're sending messages too quickly. Wait ${remainingSeconds}s.`,
+        remainingSeconds,
+      });
+
+      return null;
+    }
+    // Keep only messages from the last 5 seconds
+    rateLimit.timestamps = rateLimit.timestamps.filter(
+      timestamp => now - timestamp < 5000
+    );
+
+    // Maximum 5 messages in 5 seconds
+    if (rateLimit.timestamps.length >= 5) {
+      rateLimit.blockedUntil = now + 10000;
+
+      socket.emit("rate_limit", {
+        message: "You're sending messages too quickly. Wait 10s.",
+        remainingSeconds: 10,
+      });
+
+      return null;
+    }
+    // Record this message
+    rateLimit.timestamps.push(now);
+    return message;
+
+  }
+
+  // Rate Limits For Finding Stranger
+  function _findStrangerRateLimit(socket) {
+    const now = Date.now();
+
+    // Create rate-limit record
+    if (!findStrangerRateLimits[socket.id]) {
+      findStrangerRateLimits[socket.id] = {
+        timestamps: [],
+        blockedUntil: 0,
+      };
+    }
+
+    const rateLimit = findStrangerRateLimits[socket.id];
+
+    // Check cooldown
+    if (now < rateLimit.blockedUntil) {
+      const remainingSeconds = Math.ceil(
+        (rateLimit.blockedUntil - now) / 1000
+      );
+      socket.emit("match_rate_limit", {
+        message: `You're searching too quickly. Wait ${remainingSeconds}s.`,
+        remainingSeconds,
+      });
+
+      return false;
+    }
+
+    // Keep only requests from the last 10 seconds
+    rateLimit.timestamps = rateLimit.timestamps.filter(
+      timestamp => now - timestamp < 10000
+    );
+
+    // Maximum 3 searches in 10 seconds
+    if (rateLimit.timestamps.length >= 3) {
+      rateLimit.blockedUntil = now + 10000;
+
+      socket.emit("match_rate_limit", {
+        message: "You're searching too quickly. Wait 10s.",
+        remainingSeconds: 10,
+      });
+
+      return false;
+    }
+
+    // Record request
+    rateLimit.timestamps.push(now);
+
+    return true;
+  }
+
+
+
   io.on("connection", (socket) => {
 
     onlineUsers++;
@@ -108,6 +244,20 @@ module.exports = (io) => {
     // FIND STRANGER
     socket.on("find_stranger", async (data) => {
       try {
+
+        // searching or not
+        if (isUserWaiting(socket)) {
+          socket.emit("already_searching", {
+            message: "You are already searching for a stranger.",
+          });
+          return;
+        }
+
+        // Rate Limits
+        if (!_findStrangerRateLimit(socket)) {
+          return;
+        }
+
         const interests = data?.interests || [];
 
         const currentUserProfile = await AnonymousProfile.findOne({
@@ -156,6 +306,8 @@ module.exports = (io) => {
           let partnerData;
           if (partnerIndex !== -1) {
             partnerData = waitingUsers.splice(partnerIndex, 1)[0];
+            clearSearchTimeout(socket.id);
+            clearSearchTimeout(partnerData.socket.id);
           } else {
             addToQueue(socket, interests, currentUserProfile);
             startSearchTimeout(socket);
@@ -205,13 +357,19 @@ module.exports = (io) => {
           startSearchTimeout(socket);
         }
       } catch (error) {
-        console.error(error);
         socket.emit("matching_failed", {
           message: "Unable to find a stranger."
         });
       }
     });
 
+    // socket.on("cancel_search", () => {
+    //   waitingUsers = waitingUsers.filter(
+    //     user => user.socket.id !== socket.id
+    //   );
+
+    //   socket.emit("search_cancelled");
+    // });
 
     /* SEND MESSAGE */
     socket.on("send_message", (data) => {
@@ -219,20 +377,35 @@ module.exports = (io) => {
       if (!data.roomId || !data.message?.trim()) {
         return;
       }
-      const messageId = randomUUID();
 
+      const activeRoomId = userRooms[socket.id];
+
+      if (!activeRoomId || activeRoomId !== data.roomId) {
+        socket.emit("message_error", {
+          message: "You are not connected to this chat.",
+        });
+        return;
+      }
+
+      // Validate message + apply rate limit
+      const message = _sendingMessageRateLimit(socket, data);
+
+      if (!message) return;
+
+
+      const messageId = randomUUID();
       io.to(data.roomId).emit("receive_message", {
         messageId,
         sender: socket.id,
-        message: data.message,
+        message: message,
         sentAt: Date.now(),
       });
 
     });
-    
+
     // msg deliverd and receive_message
     socket.on("message_received", (data) => {
-   
+
       const partnerId = partners[socket.id];
 
       if (!partnerId) {
@@ -248,6 +421,9 @@ module.exports = (io) => {
     // DISCONNECT
     socket.on("disconnect", () => {
       clearSearchTimeout(socket.id);
+      delete messageRateLimits[socket.id];
+      delete findStrangerRateLimits[socket.id];
+
       const roomId = userRooms[socket.id];
       if (roomId) {
         socket.leave(roomId);
@@ -279,7 +455,6 @@ module.exports = (io) => {
 
     // End current chat but continue searching for another stranger.
     socket.on("skip_stranger", () => {
-      clearSearchTimeout(socket.id);
       const result = endCurrentChat(socket);
 
       if (!result) return;
@@ -363,7 +538,6 @@ module.exports = (io) => {
         endChatAfterModeration(socket);
 
       } catch (error) {
-        console.error(error);
         socket.emit("report_failed", {
           message: "Unable to submit report."
         });
@@ -402,7 +576,6 @@ module.exports = (io) => {
 
 
       } catch (error) {
-        console.error(error);
         socket.emit("blocked_failed", {
           message: "Unable to submit block."
         });
