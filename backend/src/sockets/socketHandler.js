@@ -12,7 +12,7 @@ module.exports = (io) => {
   const userRooms = {};
   const partnerUserIds = {};
   const searchTimeouts = {};
-
+  // LIMITS
   const messageRateLimits = {};
   const findStrangerRateLimits = {};
 
@@ -116,6 +116,8 @@ module.exports = (io) => {
     io.to(result.partnerId).emit("stranger_ended_chat");
     socket.emit("chat_ended");
   }
+
+
 
   /*=============Rate LimitS============== */
 
@@ -234,8 +236,10 @@ module.exports = (io) => {
     return true;
   }
 
+  
 
 
+  // Connection of sockets
   io.on("connection", (socket) => {
 
     onlineUsers++;
@@ -310,17 +314,17 @@ module.exports = (io) => {
             clearSearchTimeout(partnerData.socket.id);
           } else {
             addToQueue(socket, interests, currentUserProfile);
-            startSearchTimeout(socket);
             return;
           }
           if (!partnerData) {
             addToQueue(socket, interests, currentUserProfile);
-            startSearchTimeout(socket);
             return;
           }
           const partnerProfile = partnerData.anonymousProfile;
-
           const partner = partnerData.socket;
+
+  
+
           const roomId = randomUUID();
 
           // save users dbs id
@@ -335,8 +339,7 @@ module.exports = (io) => {
           userRooms[socket.id] = roomId;
           userRooms[partner.id] = roomId;
 
-          clearSearchTimeout(socket.id);
-          clearSearchTimeout(partner.id);
+
           socket.join(roomId);
           partner.join(roomId);
 
@@ -354,7 +357,6 @@ module.exports = (io) => {
         } else {
           // Add current user to waiting list
           addToQueue(socket, interests, currentUserProfile);
-          startSearchTimeout(socket);
         }
       } catch (error) {
         socket.emit("matching_failed", {
