@@ -1,5 +1,8 @@
 const AnonymousProfile = require('../models/anonymousProfile.js');
 const { generateDisplayName } = require('../utils/displayNameGenerator.js');
+const {
+    checkChangeLimit,
+} = require("../utils/profileChangeLimit.js");
 const AppError = require('../errors/AppError.js');
 
 
@@ -53,17 +56,79 @@ async function updateAnonymousProfile(userId, displayName, avatar) {
         throw new AppError("Anonymous profile not found.", 404);
     }
 
-    const exists = await AnonymousProfile.findOne({
-        displayName,
-        _id: { $ne: anonymousProfile._id },
-    });
+    const now = new Date();
 
-    if (exists) {
-        throw new AppError("Display name already taken.", 409);
+    //    * Check whether display name actually changed
+    const nameChanged =
+        displayName !== undefined &&
+        displayName.trim() !== anonymousProfile.displayName;
+
+    //  * Check whether avatar actually changed
+    const avatarChanged =
+        avatar !== undefined &&
+        avatar !== anonymousProfile.avatar;
+
+    //  * Nothing changed
+    if (!nameChanged && !avatarChanged) {
+        return anonymousProfile;
     }
 
-    anonymousProfile.displayName = displayName;
-    anonymousProfile.avatar = avatar;
+
+    if (nameChanged) {
+        const newDisplayName = displayName.trim();
+        const exists = await AnonymousProfile.findOne({
+            displayName: newDisplayName,
+            _id: { $ne: anonymousProfile._id },
+        });
+
+        if (exists) {
+            throw new AppError("Display name already taken.", 409);
+        }
+
+        const nameLimit = checkChangeLimit(
+            anonymousProfile.displayNameChangeDates
+        );
+
+        if (!nameLimit.allowed) {
+            throw new AppError(
+                `You can change your display name again in ${Math.ceil(
+                    nameLimit.retryAfter / 3600
+                )} hours.`,
+                429
+            );
+        }
+
+        anonymousProfile.displayName = newDisplayName;
+        anonymousProfile.displayNameChangeDates = nameLimit.recentChanges;
+        anonymousProfile.displayNameChangeDates.push(now);
+
+    }
+        if (avatarChanged) {
+
+            const avatarLimit = checkChangeLimit(
+                anonymousProfile.avatarChangeDates
+            );
+
+            if (!avatarLimit.allowed) {
+                throw new AppError(
+                    `You can change your avatar again in ${Math.ceil(
+                        avatarLimit.retryAfter / 3600
+                    )} hours.`,
+                    429
+                );
+            }
+
+            anonymousProfile.avatar = avatar;
+
+            anonymousProfile.avatarChangeDates =
+                avatarLimit.recentChanges;
+
+            anonymousProfile.avatarChangeDates.push(
+                now
+            );
+        
+
+    }
 
     await anonymousProfile.save();
 
