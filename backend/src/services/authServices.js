@@ -5,35 +5,36 @@ const comparePassword = require("../utils/comparePassword");
 const generateToken = require("../utils/genrateToken");
 
 
-const authService={
 
-  async registerUser(userData)  {
-  const {username,email,password,interests,bio,gender,profileImage,
-} = userData;
 
-  const existingEmail =await User.findOne({ email });
+async function registerUser(userData) {
+  const { username, email, password, interests, bio, gender, profileImage,
+  } = userData;
+
+  const existingEmail = await User.findOne({ email });
 
   if (existingEmail) {
-    throw new AppError("Email already exists",409);
+    throw new AppError("Email already exists", 409);
   }
-  const existingUser =await User.findOne({ username });
+  const existingUser = await User.findOne({ username });
 
-    if (existingUser) {throw new AppError("User already exists",409);
+  if (existingUser) {
+    throw new AppError("User already exists", 409);
   }
 
-  const hashedPassword =await hashPassword(password);
+  const hashedPassword = await hashPassword(password);
 
-  const user =await User.create({username,email,password: hashedPassword,interests,bio,gender,profileImage});
+  const user = await User.create({ username, email, password: hashedPassword, interests, bio, gender, profileImage });
   return user;
-},
+}
 
-  async loginUser({ identifier, password })  {
+async function loginUser({ identifier, password }) {
 
   const user = await User.findOne({
-  $or:[
-  {email:identifier},
-  {username:identifier}
-  ]
+    $or: [
+      { email: identifier },
+      { username: identifier }
+    ]
   }).select("+password");
 
   if (!user) {
@@ -62,17 +63,21 @@ const authService={
       interests: user.interests,
     },
   };
-},
-
-  async getCurrentUser(userId)  {
-    const user = await User.findById(userId);
-
-    if (!user) {
-        throw new AppError("User not found",404);
-    }
-
-    return user;
-}
 }
 
-module.exports = authService
+async function getCurrentUser(userId) {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  return user;
+}
+
+
+module.exports = {
+  registerUser,
+  loginUser,
+  getCurrentUser
+}

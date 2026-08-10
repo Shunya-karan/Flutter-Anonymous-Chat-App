@@ -33,7 +33,7 @@ const authRateLimit = rateLimit({
 // Sensitive action limiter
 const sensitiveRateLimit = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
-  limit: 20,
+  limit: 5,
 
   standardHeaders: "draft-8",
   legacyHeaders: false,

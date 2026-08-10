@@ -29,9 +29,8 @@ class _HomePageState extends State<HomePage> {
   // List<String> userInterests  = [];
   final socketService = SocketService.instance;
   bool  isSearching = false;
-
-  // UserModel?user;
   bool isLoading =true;
+
 
   @override
   void initState() {
@@ -60,10 +59,13 @@ class _HomePageState extends State<HomePage> {
         isSearching = false;
       });
       final roomId = data["roomId"];
+
       final stranger = data["stranger"];
 
       final strangerName = stranger["displayName"];
       final strangerAvatar = stranger["avatar"];
+
+
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -73,6 +75,7 @@ class _HomePageState extends State<HomePage> {
                 roomId: roomId,
                 strangerName: strangerName,
                 strangerAvatar: strangerAvatar,
+                strangerUserId: data["strangerUserId"],
               ),
         ),
       ).then((result) {

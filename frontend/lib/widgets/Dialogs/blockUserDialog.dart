@@ -17,12 +17,12 @@ class _BlockUserDialogState extends State<BlockUserDialog> {
       content: Text("You won't be matched with this user again."),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pop(context,false),
           child: const Text("Cancel"),
         ),
         FilledButton(
           onPressed: (){
-            Navigator.pop(context);
+            Navigator.pop(context,true);
           },
           child: const Text("Block"),
         ),

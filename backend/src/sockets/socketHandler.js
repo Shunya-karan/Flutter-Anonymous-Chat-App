@@ -236,7 +236,7 @@ module.exports = (io) => {
     return true;
   }
 
-  
+
 
 
   // Connection of sockets
@@ -271,24 +271,66 @@ module.exports = (io) => {
         // If someone waiting who shares atleast one interest
         if (waitingUsers.length > 0) {
           // find a stranger 
-          const [blockedUsers, blockedByUsers] = await Promise.all([
-            blockedUserModel.find({ user: socket.user.id }).select("blockedUser"),
-            blockedUserModel.find({ blockedUser: socket.user.id }).select("user"),
+          const [
+            blockedUsers,
+            blockedByUsers,
+            reportedUsers,
+            reportedByUsers,
+          ] = await Promise.all([
+
+            // Users I blocked
+            blockedUserModel
+              .find({ user: socket.user.id })
+              .select("blockedUser"),
+
+            // Users who blocked me
+            blockedUserModel
+              .find({ blockedUser: socket.user.id })
+              .select("user"),
+
+            // Users I reported
+            reportModel
+              .find({ reporter: socket.user.id })
+              .select("reportedUser"),
+
+            // Users who reported me
+            reportModel
+              .find({ reportedUser: socket.user.id })
+              .select("reporter"),
           ]);
 
           const blockedSet = new Set(
-            blockedUsers.map(item => item.blockedUser.toString())
+            blockedUsers.map(
+              item => item.blockedUser.toString()
+            )
           );
 
           const blockedBySet = new Set(
-            blockedByUsers.map(item => item.user.toString())
+            blockedByUsers.map(
+              item => item.user.toString()
+            )
           );
+
+          const reportedSet = new Set(
+            reportedUsers.map(
+              item => item.reportedUser.toString()
+            )
+          );
+
+          const reportedBySet = new Set(
+            reportedByUsers.map(
+              item => item.reporter.toString()
+            )
+          );
+
+
           // Find a stranger with common interests
-          // while respecting blocked users.
+          // while respecting blocked and reported users.
           const partnerIndex = waitingUsers.findIndex((user) => {
 
             // Skip yourself
-            if (user.socket.id === socket.id) return false;
+            if (user.userId.toString()==socket.user.id.toString()) return false;
+            const partnerUserId = user.userId.toString();
 
             // Must share at least one common interest
             const hasCommonInterest = user.interests.some(
@@ -296,12 +338,20 @@ module.exports = (io) => {
             );
 
             if (!hasCommonInterest) return false;
+            // I blocked them
+            if (blockedSet.has(partnerUserId)) return false;
 
-            // Skip if current user has blocked them
-            if (blockedBySet.has(user.userId.toString())) return false;
+            // They blocked me
+            if (blockedBySet.has(partnerUserId)) return false;
 
-            // Skip if they have blocked the current user
-            if (blockedSet.has(user.userId.toString())) return false;
+
+            // I reported them
+            if (reportedSet.has(partnerUserId)) return false;
+
+
+            // They reported me
+            if (reportedBySet.has(partnerUserId)) return false;
+
 
             return true;
           }
@@ -323,7 +373,7 @@ module.exports = (io) => {
           const partnerProfile = partnerData.anonymousProfile;
           const partner = partnerData.socket;
 
-  
+
 
           const roomId = randomUUID();
 
@@ -346,12 +396,14 @@ module.exports = (io) => {
 
           socket.emit("matched", {
             roomId,
-            stranger: partnerProfile
+            stranger: partnerProfile,
+            strangerUserId: partner.user.id,
           });
 
           partner.emit("matched", {
             roomId,
-            stranger: currentUserProfile
+            stranger: currentUserProfile,
+            strangerUserId: socket.user.id,
           })
 
         } else {

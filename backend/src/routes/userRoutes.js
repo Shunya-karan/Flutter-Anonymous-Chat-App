@@ -8,6 +8,7 @@ const upload = require("../middleware/uploadMiddleware");
 router.put("/update-profile",authMiddleware,
     upload.single("profileImage"),
     userController.updateProfile);
+    
 router.put("/change-password",authMiddleware,userController.changePassword)
 
 

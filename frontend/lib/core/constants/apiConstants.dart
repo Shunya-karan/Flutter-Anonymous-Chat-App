@@ -17,4 +17,8 @@ class ApiConstants {
   static const String updateAnonymousProfile = "/anonymous/profile";
   static const String getAnonymousProfile = "/anonymous/profile";
 
+  static const String blockUser = "/block";
+  static const String reportUser = "/report";
+
+
 }

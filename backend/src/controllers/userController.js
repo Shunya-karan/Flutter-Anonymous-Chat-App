@@ -1,6 +1,6 @@
 const userService = require("../services/userService");
 
-const updateProfile = async (req, res, next) => {
+async function updateProfile(req, res, next){
   try {
 
     const user = await userService.updateProfile(
@@ -9,7 +9,7 @@ const updateProfile = async (req, res, next) => {
       req.file
     );
 
-    res.status(200).json({
+    res.status(201).json({
       success: true,
       message: "Profile updated successfully",
       data: user,
@@ -20,7 +20,7 @@ const updateProfile = async (req, res, next) => {
   }
 };
 
-const changePassword = async (req, res, next) => {
+async function changePassword (req, res, next){
     try {
 
         await userService.changePassword(req.user._id,req.body);

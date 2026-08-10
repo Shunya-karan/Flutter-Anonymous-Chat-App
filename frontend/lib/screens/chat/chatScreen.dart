@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/chat/chatWidgets/chatAppbar.dart';
 import 'package:frontend/screens/chat/chatWidgets/chatBubble.dart';
@@ -5,6 +6,8 @@ import 'package:frontend/screens/chat/chatWidgets/chatInputBar.dart';
 import 'package:frontend/screens/chat/chatWidgets/connectionBanner.dart';
 import 'package:frontend/screens/chat/chatWidgets/emptyChatView.dart';
 import 'package:frontend/screens/chat/chatWidgets/typingIndicator.dart';
+import 'package:frontend/services/blockService.dart';
+import 'package:frontend/services/reportService.dart';
 import 'package:frontend/widgets/CustomWidgets/CustomeMessanger.dart';
 import 'package:frontend/widgets/Dialogs/blockUserDialog.dart';
 import 'package:frontend/widgets/Dialogs/endChatDialog.dart';
@@ -17,13 +20,16 @@ class ChatScreen extends StatefulWidget {
   final String roomId;
   final String strangerName;
   final String strangerAvatar;
+  final String strangerUserId;
+
 
   const ChatScreen({
     super.key,
     required this.socketService,
     required this.roomId,
     required this.strangerAvatar,
-    required this.strangerName
+    required this.strangerName,
+    required this.strangerUserId,
   });
 
   @override
@@ -44,6 +50,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Color bannerColor = Colors.green;
   bool isEndingChat = false;
 
+
   late Function(dynamic) receiveMessageListener;
   late Function(dynamic) typingListener;
   late Function(dynamic) stopTypingListener;
@@ -52,10 +59,6 @@ class _ChatScreenState extends State<ChatScreen> {
   late Function(dynamic) disconnectListener;
   late Function(dynamic) strangerChatEndedListener;
   late Function(dynamic) endChatSuccessListener;
-  late Function(dynamic) reportSuccessListener;
-  late Function(dynamic) reportFailedListener;
-  late Function(dynamic) blockSuccessListener;
-  late Function(dynamic) blockFailedListener;
   late Function(dynamic) rateLimitListener;
   late Function(dynamic) messageErrorListener;
 
@@ -216,49 +219,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   }
 
-  // report and block listener
-  void _registerSafetyListeners() {
-    //USER REPORTING
-    reportSuccessListener = (_) {
-      if (!mounted) return;
-      CustomMessenger.show(context, message: "User Reported Successfully",bgColor: Colors.green);
-    };
-    widget.socketService.socket.on(
-      "report_success",
-      reportSuccessListener,
-    );
-
-    reportFailedListener = (data) {
-      if (!mounted) return;
-      CustomMessenger.show(context,
-          message: data["message"] ?? "Unable to report user.",
-          bgColor: Colors.red);
-    };
-    widget.socketService.socket.on(
-      "report_failed",
-      reportFailedListener,
-    );
-
-    blockSuccessListener = (_) {
-      if (!mounted) return;
-      CustomMessenger.show(context, message: "User Blocked Successfully",bgColor: ColorScheme.of(context).error);
-    };
-    widget.socketService.socket.on(
-      "blocked_success",
-      blockSuccessListener,
-    );
-
-    blockFailedListener = (data) {
-      if (!mounted) return;
-      CustomMessenger.show(context,
-          message: data["message"] ?? "Unable to block user.",
-          bgColor: Colors.red);
-    };
-    widget.socketService.socket.on(
-      "block_failed",
-      blockFailedListener,
-    );
-  }
 
   // Removing all sockets
   void _removeSocketListeners(){
@@ -307,17 +267,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
 
     widget.socketService.socket.off(
-      "report_success",
-      reportSuccessListener,
-    );
-
-
-    widget.socketService.socket.off(
-      "report_failed",
-      reportFailedListener,
-    );
-
-    widget.socketService.socket.off(
       "rate_limit",
       rateLimitListener,
     );
@@ -336,7 +285,6 @@ class _ChatScreenState extends State<ChatScreen> {
     _registerMessageListeners();
     _registerChatStateListeners();
     _registerTypingListeners();
-    _registerSafetyListeners();
   }
 
   @override
@@ -500,6 +448,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> reportUser() async {
+
     final reason = await showDialog<String>(
       context: context,
       builder: (_) => const ReportUserDialog(),
@@ -507,21 +456,64 @@ class _ChatScreenState extends State<ChatScreen> {
 
     if (reason == null) return;
 
-    widget.socketService.socket.emit(
-      "report_user",
-      {
-        "reason": reason,
-      },
-    );
+    try{
+      await ReportService.report(
+          reportedUserId: widget.strangerUserId,
+          reason: reason);
+      if(!mounted) return;
+      CustomMessenger.show(
+        context,
+        message: "User ${widget.strangerName} reported successfully.",
+        bgColor: Colors.green,
+      );
+      widget.socketService.socket.emit("end_chat");
+
+    }on DioException catch (e) {
+      if (!mounted) return;
+
+      CustomMessenger.show(
+        context,
+        message: e.response?.data["message"] ??
+            "Unable to report user.",
+        bgColor: Colors.red,
+      );
+    }
   }
 
   Future<void> blockUser() async {
-     await showDialog<String>(
+
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => const BlockUserDialog(),
     );
-    widget.socketService.socket.emit(
-      "block_user"
-    );
+    if (confirmed != true) {
+      return;
+    }
+    try {
+      await BlockService.block(
+        blockedUserId: widget.strangerUserId,
+      );
+
+      if (!mounted) return;
+
+      CustomMessenger.show(
+        context,
+        message: "User blocked successfully.",
+        bgColor: Colors.green,
+      );
+
+      widget.socketService.socket.emit("end_chat");
+
+    } on DioException catch (e) {
+      if (!mounted) return;
+
+      CustomMessenger.show(
+        context,
+        message: e.response?.data["message"] ??
+            "Unable to block user.",
+        bgColor: Colors.red,
+      );
+    }
+
   }
 }

@@ -1,9 +1,9 @@
-const AnonymousProfile =require('../models/anonymousProfile.js');
-const { generateDisplayName } = require( '../utils/displayNameGenerator.js');
+const AnonymousProfile = require('../models/anonymousProfile.js');
+const { generateDisplayName } = require('../utils/displayNameGenerator.js');
 const AppError = require('../errors/AppError.js');
 
 
-async function getAnonymousProfile(userId){
+async function getAnonymousProfile(userId) {
     const profile = await AnonymousProfile.findOne({
         user: userId,
     }).select("displayName avatar -_id");
@@ -29,12 +29,12 @@ async function generateUniquedisplayName() {
     return displayName;
 };
 //createAnonymousProfile
-async function createAnonymousProfile(userId, displayName,avatar) {
-    
+async function createAnonymousProfile(userId, displayName, avatar) {
+
     const exists = await AnonymousProfile.exists({ displayName });
 
     if (exists) {
-        throw new AppError("Display name already taken.",409);
+        throw new AppError("Display name already taken.", 409);
     }
 
     const anonymousProfile = await AnonymousProfile.create({
@@ -45,7 +45,7 @@ async function createAnonymousProfile(userId, displayName,avatar) {
     return anonymousProfile;
 }
 
-async function updateAnonymousProfile(userId,displayName,avatar) {
+async function updateAnonymousProfile(userId, displayName, avatar) {
 
     const anonymousProfile = await AnonymousProfile.findOne({ user: userId });
 

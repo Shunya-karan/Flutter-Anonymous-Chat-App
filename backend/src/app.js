@@ -7,10 +7,12 @@ const {
 } = require("./middleware/rateLimits.js");
 
 const authRoutes = require("./routes/authRoutes");
+
 const errorMiddleware = require("./middleware/errorMiddleware");
 const userRoutes = require("./routes/userRoutes");
 const anonymousRoutes = require("./routes/anonymousRoutes.js")
-
+const blockUserRouter = require("./routes/blockUserRouter.js");
+const reportUserRouter = require("./routes/reportUserRoutes.js");
 const app = express();
 
 app.use(cors());
@@ -25,6 +27,9 @@ app.get("/", (req, res) => {
 app.use("/api/auth",authRateLimit, authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/anonymous/",anonymousRoutes);
+app.use("/api/block/",sensitiveRateLimit,blockUserRouter);
+app.use("/api/report/",sensitiveRateLimit,reportUserRouter);
+
 // Must be the last middleware
 app.use(errorMiddleware);
 
