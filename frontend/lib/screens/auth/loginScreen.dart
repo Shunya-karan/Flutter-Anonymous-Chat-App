@@ -63,10 +63,19 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     } on DioException catch (e) {
+      print("========== LOGIN ERROR ==========");
+      print("Type: ${e.type}");
+      print("Message: ${e.message}");
+      print("URL: ${e.requestOptions.uri}");
+      print("Status: ${e.response?.statusCode}");
+      print("Response: ${e.response?.data}");
+      print("=================================");
       final message = e.response?.data["message"] ??
           "Something went wrong";
       CustomMessenger.show(context, message: message,bgColor: AppColors.error);
   }catch (e) {
+      print("LOGIN UNKNOWN ERROR: $e");
+
       CustomMessenger.show(context, message: e.toString(),bgColor: AppColors.error);
     }finally{
       if(mounted){

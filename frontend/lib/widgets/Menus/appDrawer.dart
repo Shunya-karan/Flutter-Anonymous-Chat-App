@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/anonymous/anonymousProfileScreen.dart';
 import 'package:frontend/screens/profile/profileScreen.dart';
+import 'package:frontend/screens/settings/aboutTalkLoopScreen.dart';
+import 'package:frontend/screens/settings/rate_talkloop_screen.dart';
+import 'package:frontend/widgets/CustomWidgets/CustomeMessanger.dart';
 import 'package:frontend/widgets/Dialogs/appearanceDialog.dart';
 import 'package:frontend/widgets/logoutButton.dart';
 import 'package:frontend/widgets/Menus/profileHeader.dart';
@@ -99,19 +102,32 @@ class AppDrawer extends StatelessWidget {
                   SettingsTile(
                     icon: Icons.privacy_tip_outlined,
                     title: "Privacy Policy",
-                    onTap: () {},
+                    onTap: () {
+                      CustomMessenger.show(context, message: "UNDER PROCESSING");
+                    },
                   ),
                   //About
                   SettingsTile(
                     icon: Icons.info_outline,
                     title: "About TalkLoop",
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(context,
+                      MaterialPageRoute(builder: (_)=>AboutTalkLoopScreen())
+                      );
+                    },
                   ),
                   // Taring
                   SettingsTile(
-                    icon: Icons.star_border_outlined,
-                    title: "Rate App",
-                    onTap: () {},
+                    icon: Icons.star_outline,
+                    title: "Rate TalkLoop",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const RateTalkLoopScreen(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

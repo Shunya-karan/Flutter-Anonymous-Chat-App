@@ -1,11 +1,12 @@
 class ApiConstants {
   ApiConstants._();
 
-  static const String host = "10.224.68.243";
+  // static const String host = "10.224.68.243";
   // static const String host = "localhost";
+  static const String host = "flutter-anonymous-chat-app.onrender.com";
 
-  static const String baseUrl = "http://$host:3000/api";
-  static const String socketUrl = "http://$host:3000";
+  static const String baseUrl = "https://$host/api";
+  static const String socketUrl = "https://$host";
   static const String login = "/auth/login";
   static const String register = "/auth/register";
   static const String me = "/auth/me";
