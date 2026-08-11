@@ -107,6 +107,7 @@ module.exports = (io) => {
     return { partnerId };
   }
 
+
   // ending chats after block and report
   function endChatAfterModeration(socket) {
     const result = endCurrentChat(socket);
@@ -117,9 +118,7 @@ module.exports = (io) => {
     socket.emit("chat_ended");
   }
 
-
-
-  /*=============Rate LimitS============== */
+  // Rate LimitS
 
   // Rate Limits For Sending MEssage And receiving
   function _sendingMessageRateLimit(socket, data) {
@@ -329,7 +328,7 @@ module.exports = (io) => {
           const partnerIndex = waitingUsers.findIndex((user) => {
 
             // Skip yourself
-            if (user.userId.toString()==socket.user.id.toString()) return false;
+            if (user.userId.toString() == socket.user.id.toString()) return false;
             const partnerUserId = user.userId.toString();
 
             // Must share at least one common interest
@@ -417,13 +416,6 @@ module.exports = (io) => {
       }
     });
 
-    // socket.on("cancel_search", () => {
-    //   waitingUsers = waitingUsers.filter(
-    //     user => user.socket.id !== socket.id
-    //   );
-
-    //   socket.emit("search_cancelled");
-    // });
 
     /* SEND MESSAGE */
     socket.on("send_message", (data) => {
@@ -472,42 +464,49 @@ module.exports = (io) => {
 
     });
 
+    // End current chat but continue searching for another stranger.
+
     // DISCONNECT
+
     socket.on("disconnect", () => {
+      console.log("DISCONNECT:", socket.id);
+
       clearSearchTimeout(socket.id);
+
+      // Remove rate-limit state
       delete messageRateLimits[socket.id];
       delete findStrangerRateLimits[socket.id];
 
-      const roomId = userRooms[socket.id];
-      if (roomId) {
-        socket.leave(roomId);
-      }
+      // Remove from waiting queue
+      waitingUsers = waitingUsers.filter(
+        user => user.socket.id !== socket.id
+      );
+
+      // Get partner before deleting mappings
       const partnerId = partners[socket.id];
-      onlineUsers--;
-      io.emit("online_count", onlineUsers);
-      //Notify the stranger that the connection was lost.
+
+      // Notify partner
       if (partnerId) {
         io.to(partnerId).emit(
           "stranger_disconnected"
         );
 
-        // Remove all active chat references.
-        // Prevents stale socket mappings after disconnect.
-        delete partners[socket.id];
+        // Remove partner's mappings
         delete partners[partnerId];
-        delete userRooms[socket.id];
         delete userRooms[partnerId];
-
-        delete partnerUserIds[socket.id];
         delete partnerUserIds[partnerId];
       }
-      // Remove user from the waiting queue if they disconnect while searching.
-      waitingUsers = waitingUsers.filter(
-        user => user.socket.id !== socket.id
-      );
+
+      // Remove this socket's mappings
+      delete partners[socket.id];
+      delete userRooms[socket.id];
+      delete partnerUserIds[socket.id];
+
+      onlineUsers--;
+
+      io.emit("online_count", onlineUsers);
     });
 
-    // End current chat but continue searching for another stranger.
     socket.on("skip_stranger", () => {
       const result = endCurrentChat(socket);
 
@@ -531,8 +530,10 @@ module.exports = (io) => {
     socket.on("end_chat", () => {
       const result = endCurrentChat(socket);
 
-      if (!result) return;
-
+      if (!result) {
+        socket.emit("chat_ended");
+        return;
+      }
       const { partnerId } = result;
 
       io.to(partnerId).emit("stranger_ended_chat");
@@ -540,101 +541,59 @@ module.exports = (io) => {
       socket.emit("chat_ended");
     });
 
-    // Notify the stranger that the user is typing.
-    socket.on("typing", (roomId) => {
-      if (!roomId) return;
-      socket.to(roomId).emit("user_typing");
+    // Notify stranger that user is typing
+    socket.on("typing", () => {
+      const activeRoomId = userRooms[socket.id];
+
+      // User is not currently in a chat
+      if (!activeRoomId) return;
+
+      const partnerId = partners[socket.id];
+
+      // No active partner
+      if (!partnerId) return;
+
+      // Make sure the partner is actually in the same room
+      if (userRooms[partnerId] !== activeRoomId) return;
+
+      socket.to(activeRoomId).emit("user_typing");
     });
 
-    // Notify the stranger that typing has stopped.
-    socket.on("stop_typing", (roomId) => {
-      if (!roomId) return;
-      socket.to(roomId).emit("user_stop_typing");
+
+    // Notify stranger that typing has stopped
+    socket.on("stop_typing", () => {
+      const activeRoomId = userRooms[socket.id];
+
+      // User is not currently in a chat
+      if (!activeRoomId) return;
+
+      const partnerId = partners[socket.id];
+
+      // No active partner
+      if (!partnerId) return;
+
+      // Make sure the partner is actually in the same room
+      if (userRooms[partnerId] !== activeRoomId) return;
+
+      socket.to(activeRoomId).emit("user_stop_typing");
     });
 
-    // Reporting user 
-    socket.on("report_user", async (data) => {
-      try {
-        const reporter = socket.user.id;
-        const reportedUser = partnerUserIds[socket.id];
-        const reportingReason = data.reason;
+    socket.on("check_chat_state", () => {
+      const roomId = userRooms[socket.id];
+      const partnerId = partners[socket.id];
 
-        if (!reportedUser) {
-          socket.emit("report_failed", {
-            message: "No active chat found."
-          });
-          return;
-        }
-        const existing = await reportModel.findOne({
-          reporter,
-          reportedUser
+      if (roomId && partnerId) {
+        socket.emit("chat_state", {
+          active: true,
         });
-        if (existing) {
-          socket.emit("report_failed", {
-            message: "You have already reported this user."
-          });
-          return;
-        }
-        if (!reportingReason) {
-          socket.emit("report_failed", {
-            message: "Report reason is required."
-          });
-          return;
-        }
-        await reportModel.create({
-          reporter,
-          reportedUser,
-          reason: reportingReason
-        });
-        socket.emit("report_success");
 
-        const result = endCurrentChat(socket)
-        endChatAfterModeration(socket);
-
-      } catch (error) {
-        socket.emit("report_failed", {
-          message: "Unable to submit report."
-        });
+        return;
       }
-    })
 
-    // Blocking user 
-    socket.on("block_user", async () => {
-      try {
-        const user = socket.user.id;
-        const blockedUser = partnerUserIds[socket.id];
-
-        if (!blockedUser) {
-          socket.emit("blocked_failed", {
-            message: "No active chat found."
-          });
-          return;
-        }
-        const existing = await blockedUserModel.findOne({
-          user,
-          blockedUser
-        });
-        if (existing) {
-          socket.emit("blocked_failed", {
-            message: "You have already blocked this user."
-          });
-          return;
-        }
-
-        await blockedUserModel.create({
-          user,
-          blockedUser,
-        });
-        socket.emit("blocked_success");
-        endChatAfterModeration(socket);
-
-
-      } catch (error) {
-        socket.emit("blocked_failed", {
-          message: "Unable to submit block."
-        });
-      }
-    })
+      socket.emit("chat_state", {
+        active: false,
+      });
+    });
 
   }
   )

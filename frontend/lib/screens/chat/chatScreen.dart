@@ -61,6 +61,7 @@ class _ChatScreenState extends State<ChatScreen> {
   late Function(dynamic) endChatSuccessListener;
   late Function(dynamic) rateLimitListener;
   late Function(dynamic) messageErrorListener;
+  late Function(dynamic) chatStateListener;
 
   void _initializeChat() {
     widget.socketService.socket.off("skip_success");
@@ -194,6 +195,23 @@ class _ChatScreenState extends State<ChatScreen> {
       searchAgain();
     };
     widget.socketService.socket.on("stranger_ended_chat", strangerChatEndedListener);
+
+    chatStateListener = (data) {
+      if (!mounted) return;
+
+      final active = data["active"] == true;
+
+      if (!active) {
+        print("Old chat is no longer active.");
+
+        Navigator.pop(context, true);
+      }
+    };
+
+    widget.socketService.socket.on(
+      "chat_state",
+      chatStateListener,
+    );
   }
 
   // typing listeners
@@ -274,6 +292,11 @@ class _ChatScreenState extends State<ChatScreen> {
     widget.socketService.socket.off(
       "message_error",
       messageErrorListener,
+    );
+
+    widget.socketService.socket.off(
+      "chat_state",
+      chatStateListener,
     );
   }
 

@@ -52,7 +52,6 @@ class _HomePageState extends State<HomePage> {
   Future<void>matchStranger()async{
     final user = context.read<UserProvider>().user;
     socketService.socket.off("matched");
-
     socketService.socket.on("matched", (data) {
       if (!mounted) return;
       setState(() {
@@ -154,7 +153,16 @@ class _HomePageState extends State<HomePage> {
             bgColor: Colors.orange,
           );
         });
+        socketService.socket.on("already_chatting", (data) {
+          if (!mounted) return;
 
+          CustomMessenger.show(
+            context,
+            message: data["message"] ??
+                "You are already chatting with a stranger.",
+            bgColor: Colors.orange,
+          );
+        });
         // if matching too quickly
         socketService.socket.on("match_rate_limit", (data) {
           if(!mounted) return;
