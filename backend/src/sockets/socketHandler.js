@@ -278,49 +278,24 @@ module.exports = (io) => {
           ] = await Promise.all([
 
             // Users I blocked
-            blockedUserModel
-              .find({ user: socket.user.id })
-              .select("blockedUser"),
+            blockedUserModel.find({ user: socket.user.id }).select("blockedUser"),
 
             // Users who blocked me
-            blockedUserModel
-              .find({ blockedUser: socket.user.id })
-              .select("user"),
+            blockedUserModel.find({ blockedUser: socket.user.id }).select("user"),
 
             // Users I reported
-            reportModel
-              .find({ reporter: socket.user.id })
-              .select("reportedUser"),
+            reportModel.find({ reporter: socket.user.id }).select("reportedUser"),
 
             // Users who reported me
-            reportModel
-              .find({ reportedUser: socket.user.id })
-              .select("reporter"),
-          ]);
+            reportModel.find({ reportedUser: socket.user.id }).select("reporter"),]);
 
-          const blockedSet = new Set(
-            blockedUsers.map(
-              item => item.blockedUser.toString()
-            )
-          );
+          const blockedSet = new Set(blockedUsers.map(item => item.blockedUser.toString()));
 
-          const blockedBySet = new Set(
-            blockedByUsers.map(
-              item => item.user.toString()
-            )
-          );
+          const blockedBySet = new Set(blockedByUsers.map(item => item.user.toString()));
 
-          const reportedSet = new Set(
-            reportedUsers.map(
-              item => item.reportedUser.toString()
-            )
-          );
+          const reportedSet = new Set(reportedUsers.map(item => item.reportedUser.toString()));
 
-          const reportedBySet = new Set(
-            reportedByUsers.map(
-              item => item.reporter.toString()
-            )
-          );
+          const reportedBySet = new Set(reportedByUsers.map( item => item.reporter.toString()));
 
 
           // Find a stranger with common interests
@@ -329,6 +304,7 @@ module.exports = (io) => {
 
             // Skip yourself
             if (user.userId.toString() == socket.user.id.toString()) return false;
+
             const partnerUserId = user.userId.toString();
 
             // Must share at least one common interest
@@ -351,7 +327,6 @@ module.exports = (io) => {
             // They reported me
             if (reportedBySet.has(partnerUserId)) return false;
 
-
             return true;
           }
           );
@@ -369,9 +344,9 @@ module.exports = (io) => {
             addToQueue(socket, interests, currentUserProfile);
             return;
           }
+
           const partnerProfile = partnerData.anonymousProfile;
           const partner = partnerData.socket;
-
           const roomId = randomUUID();
 
           // save users dbs id
@@ -386,10 +361,8 @@ module.exports = (io) => {
           userRooms[socket.id] = roomId;
           userRooms[partner.id] = roomId;
 
-
           socket.join(roomId);
           partner.join(roomId);
-
 
           socket.emit("matched", {
             roomId,
@@ -463,9 +436,7 @@ module.exports = (io) => {
     });
 
     // End current chat but continue searching for another stranger.
-
     // DISCONNECT
-
     socket.on("disconnect", () => {
       console.log("DISCONNECT:", socket.id);
 
@@ -556,7 +527,6 @@ module.exports = (io) => {
 
       socket.to(activeRoomId).emit("user_typing");
     });
-
 
     // Notify stranger that typing has stopped
     socket.on("stop_typing", () => {
