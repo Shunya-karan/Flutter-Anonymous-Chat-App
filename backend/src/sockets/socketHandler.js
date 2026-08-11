@@ -372,8 +372,6 @@ module.exports = (io) => {
           const partnerProfile = partnerData.anonymousProfile;
           const partner = partnerData.socket;
 
-
-
           const roomId = randomUUID();
 
           // save users dbs id
