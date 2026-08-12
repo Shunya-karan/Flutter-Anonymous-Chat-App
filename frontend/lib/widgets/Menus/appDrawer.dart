@@ -103,7 +103,7 @@ class AppDrawer extends StatelessWidget {
                     icon: Icons.privacy_tip_outlined,
                     title: "Privacy Policy",
                     onTap: () {
-                      CustomMessenger.show(context, message: "UNDER PROCESSING");
+                      CustomMessenger.show(context, message: "UNDER PROCESSING",bgColor: Colors.red);
                     },
                   ),
                   //About
