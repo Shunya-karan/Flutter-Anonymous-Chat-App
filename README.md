@@ -1,56 +1,32 @@
 # TalkLoop
 
-> **Connect. Chat. Stay Anonymous.**
+Connect. Chat. Stay Anonymous.
 
-TalkLoop is a real-time anonymous chat application built with Flutter and Node.js. It allows users to create an anonymous identity, find strangers, and communicate in real time without exposing their account identity to the person they are chatting with.
+TalkLoop is a real-time anonymous chat application built with Flutter and Node.js. It lets users create an anonymous identity, get matched with strangers, and chat in real time without revealing their account identity to the person on the other end.
 
-## 📱 Screenshots
+## Screenshots
 
-### Splash Screen
-![TalkLoop Splash Screen](screenshots/01_splash.jpg)
+| Splash Screen | Create Account | Profile Setup |
+|---|---|---|
+| ![Splash Screen](screenshots/01_splash.jpg) | ![Create Account](screenshots/02_create_account.jpg) | ![Profile Setup](screenshots/03_profile_setup.jpg) |
 
-### Create Account
-![Create Account](screenshots/02_create_account.jpg)
+| Anonymous Identity | Home | User Profile |
+|---|---|---|
+| ![Anonymous Identity](screenshots/04_anonymous_identity.jpg) | ![Home](screenshots/05_home.jpg) | ![User Profile](screenshots/06_profile.jpg) |
 
-### Profile Setup
-![Profile Setup](screenshots/03_profile_setup.jpg)
+| Searching for a Stranger | Real-Time Chat | Report User |
+|---|---|---|
+| ![Searching for a Stranger](screenshots/07_searching.jpg) | ![Real-Time Chat](screenshots/08_chat.jpg) | ![Report User](screenshots/09_report_user.jpg) |
 
-### Anonymous Identity
-![Anonymous Identity](screenshots/04_anonymous_identity.jpg)
+| Settings | Appearance | About TalkLoop |
+|---|---|---|
+| ![Settings](screenshots/10_settings_drawer.jpg) | ![Appearance](screenshots/11_appearance.jpg) | ![About TalkLoop](screenshots/12_about_talkloop.jpg) |
 
-### Home
-![TalkLoop Home](screenshots/05_home.jpg)
+| Privacy Policy | Rate TalkLoop |
+|---|---|
+| ![Privacy Policy](screenshots/13_privacy_policy.jpg) | ![Rate TalkLoop](screenshots/14_rate_talkloop.jpg) |
 
-### User Profile
-![User Profile](screenshots/06_profile.jpg)
-
-### Searching for a Stranger
-![Searching for a Stranger](screenshots/07_searching.jpg)
-
-### Real-Time Chat
-![Real-Time Chat](screenshots/08_chat.jpg)
-
-### Report User
-![Report User](screenshots/09_report_user.jpg)
-
-### Settings
-![Settings](screenshots/10_settings_drawer.jpg)
-
-### Appearance
-![Appearance](screenshots/11_appearance.jpg)
-
-### About TalkLoop
-![About TalkLoop](screenshots/12_about_talkloop.jpg)
-
-### Privacy Policy
-![Privacy Policy](screenshots/13_privacy_policy.jpg)
-
-### Rate TalkLoop
-![Rate TalkLoop](screenshots/14_rate_talkloop.jpg)
-
----
-
-## ✨ Features
+## Features
 
 - Anonymous stranger conversations
 - Random stranger matching
@@ -62,29 +38,27 @@ TalkLoop is a real-time anonymous chat application built with Flutter and Node.j
 - User profile management
 - Block users
 - Report users
-- Blocked/reported users are excluded from matching
-- Skip/end-chat functionality
-- Automatic stranger-disconnect handling
-- Network/disconnection handling
+- Blocked and reported users are excluded from matching
+- Skip or end a chat at any time
+- Automatic handling when a stranger disconnects
+- Network and disconnection handling
 - Online user count
 - Message rate limiting
 - Stranger matching rate limiting
-- Profile and anonymous identity change limits
+- Limits on how often profile and anonymous identity can be changed
 - Light, dark, and system appearance modes
 - Privacy Policy and About screens
 - Rate-app screen
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-### Frontend
-
+**Frontend**
 - Flutter
 - Dart
 - Dio
 - Socket.IO Client
 
-### Backend
-
+**Backend**
 - Node.js
 - Express.js
 - Socket.IO
@@ -96,12 +70,11 @@ TalkLoop is a real-time anonymous chat application built with Flutter and Node.j
 - Cloudinary
 - Express Rate Limit
 
-### Deployment
-
+**Deployment**
 - Render
 - MongoDB
 
-## 🏗️ Architecture
+## Architecture
 
 ```text
                     ┌──────────────────────┐
@@ -124,41 +97,36 @@ TalkLoop is a real-time anonymous chat application built with Flutter and Node.j
                     └──────────────────────┘
 ```
 
-## 🔐 Anonymous Matching
+## Anonymous Matching
 
-TalkLoop keeps the user's account identity separate from their anonymous chat identity.
+TalkLoop keeps a user's account identity separate from their anonymous chat identity. During a conversation, the stranger only sees the anonymous profile, not the user's account email or other account credentials.
 
-During a conversation, the stranger sees the anonymous profile rather than the user's account email or other account credentials.
+Matching also takes blocking and reporting into account, so users who shouldn't interact with each other are kept out of the same matching pool.
 
-Matching also takes blocking and reporting relationships into account so users who should not interact are excluded from the matching pool.
+## Real-Time Communication
 
-## 💬 Real-Time Communication
-
-Socket.IO is used for real-time communication between matched users.
-
-The application handles:
+Socket.IO handles real-time communication between matched users, including:
 
 - Stranger matching
 - Room creation
 - Message delivery
-- Typing events
-- Stop-typing events
+- Typing and stop-typing events
 - Chat termination
 - Stranger disconnection
-- Reconnection/network-related states
+- Reconnection and network-related states
 
-Each active conversation is associated with a Socket.IO room.
+Each active conversation runs in its own Socket.IO room.
 
-## 🛡️ Safety Features
+## Safety Features
 
-TalkLoop includes basic user-safety controls:
+TalkLoop includes some basic safety controls:
 
-- **Block** — prevents unwanted interaction with a user.
-- **Report** — allows users to report inappropriate behavior/content.
-- **Matching filters** — blocked and reported relationships are considered before creating a match.
-- **Rate limiting** — limits abusive or excessive API/socket actions.
+- Block, to prevent unwanted interaction with a user
+- Report, to flag inappropriate behavior or content
+- Matching filters, so blocking and reporting history is considered before a match is made
+- Rate limiting, to curb abusive or excessive API and socket activity
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 TalkLoop/
@@ -183,7 +151,7 @@ TalkLoop/
 └── README.md
 ```
 
-## 🚀 Running Locally
+## Running Locally
 
 ### 1. Clone the repository
 
@@ -207,7 +175,7 @@ MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 ```
 
-Add the remaining environment variables required by your Cloudinary/auth configuration.
+Add whatever other environment variables your Cloudinary and auth setup needs.
 
 Start the backend:
 
@@ -231,36 +199,34 @@ flutter pub get
 flutter run
 ```
 
-For a release APK:
+To build a release APK:
 
 ```bash
 flutter build apk --release
 ```
 
-## ⚙️ Production
+## Production
 
-The backend is deployed on Render and the Flutter application communicates with the production REST API and Socket.IO server.
+The backend is deployed on Render, and the Flutter app talks to the production REST API and Socket.IO server. For local development, point the frontend's API configuration at your local backend instead.
 
-For local development, update the frontend API configuration to point to your local backend instead of the production server.
+## Privacy
 
-## 🔒 Privacy
+TalkLoop includes an in-app Privacy Policy covering account information, anonymous profiles, anonymous conversations, blocking and reporting, and related data handling.
 
-TalkLoop includes an in-app Privacy Policy covering account information, anonymous profiles, anonymous conversations, blocking/reporting, and related data handling.
+## Project Status
 
-## 📌 Project Status
+Completed — production-tested prototype.
 
-**Completed — production-tested prototype**
+The core application flow has been built and tested across Android and web clients, including real-time matching and chat behavior.
 
-The core application flow has been implemented and tested across Android and web clients, including real-time matching and chat behavior.
+## Developer
 
-## 👨‍💻 Developer
-
-**Karan Yadav**
+Karan Yadav
 
 GitHub: [Shunya-karan](https://github.com/Shunya-karan)
 
 LinkedIn: [Karan Yadav](https://www.linkedin.com/in/karan-yadav-7a600431b/)
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License.
