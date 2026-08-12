@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/screens/anonymous/anonymousProfileScreen.dart';
 import 'package:frontend/screens/profile/profileScreen.dart';
 import 'package:frontend/screens/settings/aboutTalkLoopScreen.dart';
+import 'package:frontend/screens/settings/privacypolicy.dart';
 import 'package:frontend/screens/settings/rate_talkloop_screen.dart';
 import 'package:frontend/widgets/CustomWidgets/CustomeMessanger.dart';
 import 'package:frontend/widgets/Dialogs/appearanceDialog.dart';
@@ -103,7 +104,9 @@ class AppDrawer extends StatelessWidget {
                     icon: Icons.privacy_tip_outlined,
                     title: "Privacy Policy",
                     onTap: () {
-                      CustomMessenger.show(context, message: "UNDER PROCESSING",bgColor: Colors.red);
+                      Navigator.push(context, MaterialPageRoute(builder: (_)=>
+                        PrivacyPolicyScreen()
+                      ));
                     },
                   ),
                   //About
