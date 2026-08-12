@@ -157,7 +157,7 @@ TalkLoop/
 
 ```bash
 git clone https://github.com/Shunya-karan/Flutter-Anonymous-Chat-App.git
-cd TalkLoop
+cd frontend
 ```
 
 ### 2. Backend setup
