@@ -231,6 +231,4 @@ GitHub: [Shunya-karan](https://github.com/Shunya-karan)
 
 LinkedIn: [Karan Yadav](https://www.linkedin.com/in/karan-yadav-7a600431b/)
 
-## License
 
-This project is licensed under the MIT License.
